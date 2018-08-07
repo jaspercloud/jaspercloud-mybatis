@@ -1,0 +1,47 @@
+spring.jaspercloud.dao.db.names=db1,db2
+
+#db1 datasource
+spring.jaspercloud.dao.datasource.db1.driverClassName=org.postgresql.Driver
+spring.jaspercloud.dao.datasource.db1.url=jdbc:postgresql://127.0.0.1:5432/db1
+spring.jaspercloud.dao.datasource.db1.username=postgres
+spring.jaspercloud.dao.datasource.db1.password=postgres
+spring.jaspercloud.dao.datasource.db1.defaultAutoCommit=false
+spring.jaspercloud.dao.datasource.db1.initialSize=10
+spring.jaspercloud.dao.datasource.db1.minIdle=10
+spring.jaspercloud.dao.datasource.db1.maxActive=50
+spring.jaspercloud.dao.datasource.db1.maxWait=60000
+spring.jaspercloud.dao.datasource.db1.timeBetweenEvictionRunsMillis=60000
+spring.jaspercloud.dao.datasource.db1.minEvictableIdleTimeMillis=300000
+spring.jaspercloud.dao.datasource.db1.validationQuery=select 'x'
+spring.jaspercloud.dao.datasource.db1.validationQueryTimeout=60
+spring.jaspercloud.dao.datasource.db1.testWhileIdle=true
+spring.jaspercloud.dao.datasource.db1.testOnBorrow=false
+spring.jaspercloud.dao.datasource.db1.testOnReturn=false
+spring.jaspercloud.dao.datasource.db1.removeAbandoned=true
+spring.jaspercloud.dao.datasource.db1.removeAbandonedTimeout=1800
+#db1 mybatis
+spring.jaspercloud.dao.mybatis.db1.basePackages=com.jaspercloud.db1.dao.mapper
+spring.jaspercloud.dao.mybatis.db1.mapperLocations=classpath:mapper/db1/*.xml
+
+#db2 datasource
+spring.jaspercloud.dao.datasource.db2.driverClassName=org.postgresql.Driver
+spring.jaspercloud.dao.datasource.db2.url=jdbc:postgresql://127.0.0.1:5432/db2
+spring.jaspercloud.dao.datasource.db2.username=postgres
+spring.jaspercloud.dao.datasource.db2.password=postgres
+spring.jaspercloud.dao.datasource.db2.defaultAutoCommit=false
+spring.jaspercloud.dao.datasource.db2.initialSize=10
+spring.jaspercloud.dao.datasource.db2.minIdle=10
+spring.jaspercloud.dao.datasource.db2.maxActive=50
+spring.jaspercloud.dao.datasource.db2.maxWait=60000
+spring.jaspercloud.dao.datasource.db2.timeBetweenEvictionRunsMillis=60000
+spring.jaspercloud.dao.datasource.db2.minEvictableIdleTimeMillis=300000
+spring.jaspercloud.dao.datasource.db2.validationQuery=select 'x'
+spring.jaspercloud.dao.datasource.db2.validationQueryTimeout=60
+spring.jaspercloud.dao.datasource.db2.testWhileIdle=true
+spring.jaspercloud.dao.datasource.db2.testOnBorrow=false
+spring.jaspercloud.dao.datasource.db2.testOnReturn=false
+spring.jaspercloud.dao.datasource.db2.removeAbandoned=true
+spring.jaspercloud.dao.datasource.db2.removeAbandonedTimeout=1800
+#db2 mybatis
+spring.jaspercloud.dao.mybatis.db2.basePackages=com.jaspercloud.db2.dao.mapper
+spring.jaspercloud.dao.mybatis.db2.mapperLocations=classpath:mapper/db2/*.xml

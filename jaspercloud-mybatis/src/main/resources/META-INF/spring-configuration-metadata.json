@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "name": "spring.jaspercloud.dao",
+      "type": "com.jaspercloud.mybatis.properties.JasperCloudDaoProperties",
+      "sourceType": "com.jaspercloud.mybatis.properties.JasperCloudDaoProperties"
+    },
+    {
+      "sourceType": "com.jaspercloud.mybatis.properties.JasperCloudDaoProperties",
+      "name": "spring.jaspercloud.dao.datasource",
+      "type": "com.jaspercloud.mybatis.properties.DataSourceProperties"
+    },
+    {
+      "sourceType": "com.jaspercloud.mybatis.properties.JasperCloudDaoProperties",
+      "name": "spring.jaspercloud.dao.mybatis",
+      "type": "com.jaspercloud.mybatis.properties.MybatisProperties"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.jaspercloud.mybatis.properties.JasperCloudDaoProperties",
+      "name": "spring.jaspercloud.dao.datasource",
+      "type": "java.util.Map<java.lang.String,com.jaspercloud.mybatis.properties.DataSourceProperties>",
+      "description": "datasource"
+    },
+    {
+      "sourceType": "com.jaspercloud.mybatis.properties.JasperCloudDaoProperties",
+      "name": "spring.jaspercloud.dao.mybatis",
+      "type": "java.util.Map<java.lang.String,com.jaspercloud.mybatis.properties.MybatisProperties>",
+      "description": "mybatis"
+    }
+  ],
+  "hints": [
+  ]
+}
