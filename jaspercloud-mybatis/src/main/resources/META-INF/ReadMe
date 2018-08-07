@@ -1,4 +1,4 @@
-spring.jaspercloud.dao.db.names=db1,db2
+spring.jaspercloud.db.names=db1,db2
 
 #db1 datasource
 spring.jaspercloud.dao.datasource.db1.driverClassName=org.postgresql.Driver
@@ -20,8 +20,8 @@ spring.jaspercloud.dao.datasource.db1.testOnReturn=false
 spring.jaspercloud.dao.datasource.db1.removeAbandoned=true
 spring.jaspercloud.dao.datasource.db1.removeAbandonedTimeout=1800
 #db1 mybatis
-spring.jaspercloud.dao.mybatis.db1.basePackages=com.jaspercloud.db1.dao.mapper
-spring.jaspercloud.dao.mybatis.db1.mapperLocations=classpath:mapper/db1/*.xml
+spring.jaspercloud.mybatis.db1.basePackages=com.jaspercloud.db1.dao.mapper
+spring.jaspercloud.mybatis.db1.mapperLocations=classpath:mapper/db1/*.xml
 
 #db2 datasource
 spring.jaspercloud.dao.datasource.db2.driverClassName=org.postgresql.Driver
@@ -43,5 +43,5 @@ spring.jaspercloud.dao.datasource.db2.testOnReturn=false
 spring.jaspercloud.dao.datasource.db2.removeAbandoned=true
 spring.jaspercloud.dao.datasource.db2.removeAbandonedTimeout=1800
 #db2 mybatis
-spring.jaspercloud.dao.mybatis.db2.basePackages=com.jaspercloud.db2.dao.mapper
-spring.jaspercloud.dao.mybatis.db2.mapperLocations=classpath:mapper/db2/*.xml
+spring.jaspercloud.mybatis.db2.basePackages=com.jaspercloud.db2.dao.mapper
+spring.jaspercloud.mybatis.db2.mapperLocations=classpath:mapper/db2/*.xml

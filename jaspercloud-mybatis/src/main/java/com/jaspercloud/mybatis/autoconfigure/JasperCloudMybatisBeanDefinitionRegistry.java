@@ -30,7 +30,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        String[] names = environment.getProperty("jaspercloud.dao.db.names", new String[]{}.getClass());
+        String[] names = environment.getProperty("jaspercloud.db.names", new String[]{}.getClass());
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             boolean primary = (0 == i) ? true : false;
