@@ -44,7 +44,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
 
     private void registerMapperScannerConfigurer(BeanDefinitionRegistry registry, String name, boolean primary) {
         String beanName = name + "MapperScannerConfigurer";
-        String basePackages = environment.getProperty(String.format("jaspercloud.mybatis.%s.basePackages", name), String.class);
+        String basePackages = environment.getProperty(String.format("spring.jaspercloud.mybatis.%s.basePackages", name), String.class);
         if (null == basePackages) {
             return;
         }
