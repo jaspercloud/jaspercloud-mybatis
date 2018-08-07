@@ -8,10 +8,12 @@ import java.util.Map;
 /**
  * Created by TimoRD on 2017/11/24.
  */
-@ConfigurationProperties(prefix = "jaspercloud.dao")
+@ConfigurationProperties(prefix = JasperCloudDaoProperties.PREFIX)
 public class JasperCloudDaoProperties {
 
-    public static final String BeanName = "jaspercloud.dao-" + JasperCloudDaoProperties.class.getName();
+    public static final String PREFIX = "spring.jaspercloud";
+
+    public static final String BeanName = PREFIX + "-" + JasperCloudDaoProperties.class.getName();
 
     private Map<String, DataSourceProperties> datasource = new LinkedHashMap<>();
     private Map<String, MybatisProperties> mybatis = new LinkedHashMap<>();
