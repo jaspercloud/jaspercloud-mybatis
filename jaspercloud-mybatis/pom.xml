@@ -62,9 +62,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:https://github.com/jaspercloud/common-mapper.git</connection>
-        <developerConnection>scm:git:https://github.com/jaspercloud/common-mapper.git</developerConnection>
-        <url>https://github.com/jaspercloud/common-mapper</url>
+        <connection>scm:git:https://github.com/jaspercloud/jaspercloud-mybatis.git</connection>
+        <developerConnection>scm:git:https://github.com/jaspercloud/jaspercloud-mybatis.git</developerConnection>
+        <url>https://github.com/jaspercloud/jaspercloud-mybatis</url>
     </scm>
     <developers>
         <developer>
