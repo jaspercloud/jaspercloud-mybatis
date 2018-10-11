@@ -2,7 +2,7 @@ package com.jaspercloud.mybatis.autoconfigure;
 
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.support.JasperCloudDataSourceFactoryBean;
-import com.jaspercloud.mybatis.support.JasperCloudDataSourceTransactionManagerFactoryBean;
+import com.jaspercloud.mybatis.support.JasperCloudTransactionManagerFactoryBean;
 import com.jaspercloud.mybatis.support.JasperCloudSqlSessionFactoryBean;
 import com.jaspercloud.mybatis.util.JasperCloudDaoBeanFactory;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
@@ -57,7 +57,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
 
     private void registerJasperCloudDataSourceTransactionManagerFactoryBean(BeanDefinitionRegistry registry, String name, boolean primary) {
         String beanName = name + "DataSourceTransactionManager";
-        BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudDataSourceTransactionManagerFactoryBean.class);
+        BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudTransactionManagerFactoryBean.class);
         definitionBuilder.addConstructorArgValue(name);
         definitionBuilder.addPropertyReference("dataSource", name + "DataSource");
         AbstractBeanDefinition beanDefinition = definitionBuilder.getBeanDefinition();

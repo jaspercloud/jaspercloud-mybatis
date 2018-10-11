@@ -3,13 +3,14 @@ package com.jaspercloud.mybatis.support;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
 /**
  * Created by TimoRD on 2017/9/8.
  */
-public class JasperCloudDataSourceTransactionManagerFactoryBean implements InitializingBean, FactoryBean<DataSourceTransactionManager> {
+public class JasperCloudTransactionManagerFactoryBean implements InitializingBean, FactoryBean<PlatformTransactionManager> {
 
     private String name;
     private DataSource dataSource;
@@ -19,7 +20,7 @@ public class JasperCloudDataSourceTransactionManagerFactoryBean implements Initi
         this.dataSource = dataSource;
     }
 
-    public JasperCloudDataSourceTransactionManagerFactoryBean(String name) {
+    public JasperCloudTransactionManagerFactoryBean(String name) {
         this.name = name;
     }
 
@@ -30,13 +31,13 @@ public class JasperCloudDataSourceTransactionManagerFactoryBean implements Initi
     }
 
     @Override
-    public DataSourceTransactionManager getObject() throws Exception {
+    public PlatformTransactionManager getObject() throws Exception {
         return dataSourceTransactionManager;
     }
 
     @Override
     public Class<?> getObjectType() {
-        return DataSourceTransactionManager.class;
+        return PlatformTransactionManager.class;
     }
 
     @Override
