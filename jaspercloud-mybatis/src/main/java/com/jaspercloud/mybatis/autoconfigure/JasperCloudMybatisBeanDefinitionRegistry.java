@@ -2,8 +2,8 @@ package com.jaspercloud.mybatis.autoconfigure;
 
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.support.JasperCloudDataSourceFactoryBean;
-import com.jaspercloud.mybatis.support.JasperCloudTransactionManagerFactoryBean;
 import com.jaspercloud.mybatis.support.JasperCloudSqlSessionFactoryBean;
+import com.jaspercloud.mybatis.support.JasperCloudTransactionManagerFactoryBean;
 import com.jaspercloud.mybatis.util.JasperCloudDaoBeanFactory;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.BeansException;
@@ -30,6 +30,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+//        Map<String, Object> map = EnvironmentUtils.extractProperties((ConfigurableEnvironment) environment);
         String[] names = environment.getProperty("spring.jaspercloud.db.names", new String[]{}.getClass());
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
