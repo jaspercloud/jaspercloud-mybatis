@@ -5,6 +5,7 @@ import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
+import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -38,6 +39,7 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Facto
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
         sqlSessionFactoryBean.setVfs(SpringBootVFS.class);
+        sqlSessionFactoryBean.setTransactionFactory(new SpringManagedTransactionFactory());
 
         MybatisProperties mybatisProperties = jasperCloudDaoProperties.getMybatis().get(name);
         if (null != mybatisProperties) {
