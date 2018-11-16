@@ -1,7 +1,7 @@
 package com.jaspercloud.mybatis.support;
 
-import com.jaspercloud.mybatis.properties.MybatisProperties;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
+import com.jaspercloud.mybatis.properties.MybatisProperties;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
