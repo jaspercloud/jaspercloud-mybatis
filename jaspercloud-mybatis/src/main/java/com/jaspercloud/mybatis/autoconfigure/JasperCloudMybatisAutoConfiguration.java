@@ -1,10 +1,17 @@
 package com.jaspercloud.mybatis.autoconfigure;
 
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
+import com.jaspercloud.mybatis.support.ddl.DdlExecuter;
+import com.jaspercloud.mybatis.support.ddl.DdlMigrate;
+import com.jaspercloud.mybatis.support.ddl.DdlMigrateScanner;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import java.util.List;
 
 
 /**
@@ -15,4 +22,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @Configuration
 public class JasperCloudMybatisAutoConfiguration {
+
+    @Bean
+    public DdlMigrateScanner ddlMigrateScanner() {
+        return new DdlMigrateScanner();
+    }
+
+    @Bean
+    public DdlExecuter ddlExecuter(ObjectProvider<List<DdlMigrate>> provider) {
+        return new DdlExecuter(provider);
+    }
 }

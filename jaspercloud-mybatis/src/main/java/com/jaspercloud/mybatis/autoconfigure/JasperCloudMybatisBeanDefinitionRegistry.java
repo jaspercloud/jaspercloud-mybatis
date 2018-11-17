@@ -101,6 +101,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
             BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudDataSourceFactoryBean.class);
             definitionBuilder.addConstructorArgValue(name);
             definitionBuilder.addPropertyReference("jasperCloudDaoProperties", JasperCloudDaoProperties.BeanName);
+            definitionBuilder.addPropertyReference("ddlExecuter", "ddlExecuter");
             AbstractBeanDefinition beanDefinition = definitionBuilder.getBeanDefinition();
             registry.registerBeanDefinition(beanName, beanDefinition);
         }
@@ -108,6 +109,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
             BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudDataSourceFactoryBean.class);
             definitionBuilder.addConstructorArgValue(name);
             definitionBuilder.addPropertyReference("jasperCloudDaoProperties", JasperCloudDaoProperties.BeanName);
+            definitionBuilder.addPropertyReference("ddlExecuter", "ddlExecuter");
             AbstractBeanDefinition beanDefinition = definitionBuilder.getBeanDefinition();
             beanDefinition.setPrimary(primary);
             registry.registerBeanDefinition("dataSource", beanDefinition);

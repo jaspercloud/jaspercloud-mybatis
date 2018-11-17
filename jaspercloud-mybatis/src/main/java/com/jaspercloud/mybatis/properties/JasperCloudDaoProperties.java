@@ -16,6 +16,7 @@ public class JasperCloudDaoProperties {
     public static final String BeanName = PREFIX + "-" + JasperCloudDaoProperties.class.getName();
 
     private Map<String, DataSourceProperties> datasource = new LinkedHashMap<>();
+    private Map<String, DatabaseDdlProperties> ddl = new LinkedHashMap<>();
     private Map<String, MybatisProperties> mybatis = new LinkedHashMap<>();
 
     public Map<String, DataSourceProperties> getDatasource() {
@@ -24,6 +25,14 @@ public class JasperCloudDaoProperties {
 
     public void setDatasource(Map<String, DataSourceProperties> datasource) {
         this.datasource = datasource;
+    }
+
+    public Map<String, DatabaseDdlProperties> getDdl() {
+        return ddl;
+    }
+
+    public void setDdl(Map<String, DatabaseDdlProperties> ddl) {
+        this.ddl = ddl;
     }
 
     public Map<String, MybatisProperties> getMybatis() {

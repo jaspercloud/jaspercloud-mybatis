@@ -22,6 +22,9 @@ spring.jaspercloud.datasource.db1.removeAbandonedTimeout=1800
 #db1 mybatis
 spring.jaspercloud.mybatis.db1.basePackages=com.jaspercloud.db1.dao.mapper
 spring.jaspercloud.mybatis.db1.mapperLocations=classpath:mapper/db1/*.xml
+#db1 ddl
+spring.jaspercloud.ddl.db1.name=db1
+spring.jaspercloud.ddl.db1.location=classpath:db/db1/*.sql
 
 #db2 datasource
 spring.jaspercloud.datasource.db2.driverClassName=org.postgresql.Driver
@@ -45,3 +48,10 @@ spring.jaspercloud.datasource.db2.removeAbandonedTimeout=1800
 #db2 mybatis
 spring.jaspercloud.mybatis.db2.basePackages=com.jaspercloud.db2.dao.mapper
 spring.jaspercloud.mybatis.db2.mapperLocations=classpath:mapper/db2/*.xml
+#db1 ddl
+spring.jaspercloud.ddl.db2.name=db2
+spring.jaspercloud.ddl.db2.location=classpath:db/db2/*.sql
+
+# ddl文件名: ${version}__${name}.sql
+version: 升级版本号
+name: 项目名(一个数据库可能有多个项目，通过name区分开来进行版本控制)

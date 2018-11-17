@@ -1,7 +1,9 @@
 package com.jaspercloud.mybatis.support;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
+import com.jaspercloud.mybatis.properties.DatabaseDdlProperties;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
+import com.jaspercloud.mybatis.support.ddl.DdlExecuter;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -15,10 +17,15 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
 
     private String name;
     private JasperCloudDaoProperties jasperCloudDaoProperties;
+    private DdlExecuter ddlExecuter;
     private DataSource dataSource;
 
     public void setJasperCloudDaoProperties(JasperCloudDaoProperties jasperCloudDaoProperties) {
         this.jasperCloudDaoProperties = jasperCloudDaoProperties;
+    }
+
+    public void setDdlExecuter(DdlExecuter ddlExecuter) {
+        this.ddlExecuter = ddlExecuter;
     }
 
     public JasperCloudDataSourceFactoryBean(String name) {
@@ -29,6 +36,14 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
     public void afterPropertiesSet() throws Exception {
         Map<String, String> map = jasperCloudDaoProperties.getDatasource().get(name).toMap();
         dataSource = DruidDataSourceFactory.createDataSource(map);
+        DatabaseDdlProperties properties = jasperCloudDaoProperties.getDdl().get(name);
+        if (null != properties) {
+            try {
+                ddlExecuter.execute(properties, dataSource);
+            } catch (Throwable e) {
+                throw new ExceptionInInitializerError(e);
+            }
+        }
     }
 
     @Override
