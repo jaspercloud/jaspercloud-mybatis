@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -23,10 +24,13 @@ public class DdlExecuter {
     @Autowired
     private DdlMigrateScanner ddlMigrateScanner;
 
-    private List<DdlMigrate> migrateList;
+    private List<DdlMigrate> migrateList = new ArrayList<>();
 
     public DdlExecuter(ObjectProvider<List<DdlMigrate>> provider) {
-        migrateList = provider.getObject();
+        List<DdlMigrate> list = provider.getIfAvailable();
+        if (null != list) {
+            migrateList.addAll(list);
+        }
     }
 
     public void execute(DatabaseDdlProperties properties, DataSource dataSource) {
