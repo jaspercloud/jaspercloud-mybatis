@@ -19,6 +19,6 @@ public class DdlMigrateSql implements DdlMigrate {
 
     @Override
     public void execute(JdbcTemplate jdbcTemplate) {
-        jdbcTemplate.update(sql);
+        jdbcTemplate.execute(sql);
     }
 }
