@@ -1,0 +1,1 @@
+create table test(id int8,content text)
