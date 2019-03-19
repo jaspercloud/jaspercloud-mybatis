@@ -4,6 +4,7 @@ public class DatabaseDdlProperties {
 
     private String name = "ddl";
     private String[] location;
+    private String[] classLocation;
 
     public String getName() {
         return name;
@@ -19,6 +20,14 @@ public class DatabaseDdlProperties {
 
     public void setLocation(String[] location) {
         this.location = location;
+    }
+
+    public String[] getClassLocation() {
+        return classLocation;
+    }
+
+    public void setClassLocation(String[] classLocation) {
+        this.classLocation = classLocation;
     }
 
     public DatabaseDdlProperties() {

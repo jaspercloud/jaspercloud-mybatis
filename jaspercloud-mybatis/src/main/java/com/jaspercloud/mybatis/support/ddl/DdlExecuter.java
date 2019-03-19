@@ -1,7 +1,6 @@
 package com.jaspercloud.mybatis.support.ddl;
 
 import com.jaspercloud.mybatis.properties.DatabaseDdlProperties;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,13 +23,7 @@ public class DdlExecuter {
     @Autowired
     private DdlMigrateScanner ddlMigrateScanner;
 
-    private List<DdlMigrate> migrateList = new ArrayList<>();
-
-    public DdlExecuter(ObjectProvider<List<DdlMigrate>> provider) {
-        List<DdlMigrate> list = provider.getIfAvailable();
-        if (null != list) {
-            migrateList.addAll(list);
-        }
+    public DdlExecuter() {
     }
 
     public void execute(DatabaseDdlProperties properties, DataSource dataSource) {
@@ -49,11 +42,14 @@ public class DdlExecuter {
     }
 
     private void doTransaction(DatabaseDdlProperties properties, JdbcTemplate jdbcTemplate, TransactionStatus status) {
-        List<DdlMigrate> scanList = ddlMigrateScanner.scan(properties.getLocation());
-        scanList.addAll(migrateList);
+        List<DdlMigrate> migrateList = new ArrayList<>();
+        List<DdlMigrate> scanClassList = ddlMigrateScanner.scanSQLClass(properties.getClassLocation());
+        List<DdlMigrate> scanFileList = ddlMigrateScanner.scanFile(properties.getLocation());
+        migrateList.addAll(scanClassList);
+        migrateList.addAll(scanFileList);
         checkTable(jdbcTemplate);
         int currentVersion = getVersion(properties, jdbcTemplate);
-        List<DdlMigrate> list = scanList.stream().sorted(new Comparator<DdlMigrate>() {
+        List<DdlMigrate> list = migrateList.stream().sorted(new Comparator<DdlMigrate>() {
             @Override
             public int compare(DdlMigrate o1, DdlMigrate o2) {
                 return new Integer(o1.getMigrateInfo().getUpdateVersion()).compareTo(new Integer(o2.getMigrateInfo().getUpdateVersion()));
