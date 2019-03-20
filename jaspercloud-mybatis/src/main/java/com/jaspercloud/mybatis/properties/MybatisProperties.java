@@ -15,7 +15,9 @@ package com.jaspercloud.mybatis.properties;
  * limitations under the License.
  */
 
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -73,6 +75,13 @@ public class MybatisProperties {
      * Externalized properties for MyBatis configuration.
      */
     private Properties configurationProperties;
+
+    /**
+     * A Configuration object for customize default settings. If {@link #configLocation}
+     * is specified, this property is not used.
+     */
+    @NestedConfigurationProperty
+    private Configuration configuration;
 
     /**
      * @since 1.1.0
@@ -148,6 +157,14 @@ public class MybatisProperties {
      */
     public void setConfigurationProperties(Properties configurationProperties) {
         this.configurationProperties = configurationProperties;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public Resource[] resolveMapperLocations() {

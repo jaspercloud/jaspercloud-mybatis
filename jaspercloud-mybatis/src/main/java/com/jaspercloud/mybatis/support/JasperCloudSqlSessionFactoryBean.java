@@ -1,5 +1,6 @@
 package com.jaspercloud.mybatis.support;
 
+import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationCustomizer;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.properties.MybatisProperties;
 import org.apache.ibatis.session.Configuration;
@@ -7,18 +8,23 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
 import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
+import java.util.Map;
 
 /**
  * Created by TimoRD on 2017/9/8.
  */
-public class JasperCloudSqlSessionFactoryBean implements InitializingBean, FactoryBean<SqlSessionFactory> {
+public class JasperCloudSqlSessionFactoryBean implements InitializingBean, ApplicationContextAware, FactoryBean<SqlSessionFactory> {
 
     private String name;
+    private ApplicationContext applicationContext;
     private DataSource dataSource;
     private JasperCloudDaoProperties jasperCloudDaoProperties;
     private SqlSessionFactory sqlSessionFactory;
@@ -36,16 +42,27 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Facto
     }
 
     @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
     public void afterPropertiesSet() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
-        Configuration configuration = new Configuration();
-        configuration.setMapUnderscoreToCamelCase(true);
+        MybatisProperties mybatisProperties = jasperCloudDaoProperties.getMybatis().get(name);
+        Configuration configuration = mybatisProperties.getConfiguration();
+        if (null == configuration) {
+            configuration = new Configuration();
+        }
+        Map<String, MybatisConfigurationCustomizer> customizerMap = applicationContext.getBeansOfType(MybatisConfigurationCustomizer.class);
+        for (MybatisConfigurationCustomizer customizer : customizerMap.values()) {
+            customizer.customize(name, configuration);
+        }
         sqlSessionFactoryBean.setDataSource(dataSource);
         sqlSessionFactoryBean.setConfiguration(configuration);
         sqlSessionFactoryBean.setVfs(SpringBootVFS.class);
         sqlSessionFactoryBean.setTransactionFactory(new SpringManagedTransactionFactory());
 
-        MybatisProperties mybatisProperties = jasperCloudDaoProperties.getMybatis().get(name);
         if (null != mybatisProperties) {
             Resource[] resources = mybatisProperties.resolveMapperLocations();
             sqlSessionFactoryBean.setMapperLocations(resources);
