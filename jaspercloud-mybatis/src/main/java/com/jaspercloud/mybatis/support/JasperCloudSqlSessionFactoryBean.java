@@ -1,6 +1,7 @@
 package com.jaspercloud.mybatis.support;
 
 import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationCustomizer;
+import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationFactory;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.properties.MybatisProperties;
 import org.apache.ibatis.session.Configuration;
@@ -11,6 +12,7 @@ import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
@@ -50,10 +52,7 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Appli
     public void afterPropertiesSet() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         MybatisProperties mybatisProperties = jasperCloudDaoProperties.getMybatis().get(name);
-        Configuration configuration = mybatisProperties.getConfiguration();
-        if (null == configuration) {
-            configuration = new Configuration();
-        }
+        Configuration configuration = createConfiguration();
         Map<String, MybatisConfigurationCustomizer> customizerMap = applicationContext.getBeansOfType(MybatisConfigurationCustomizer.class);
         for (MybatisConfigurationCustomizer customizer : customizerMap.values()) {
             customizer.customize(name, configuration);
@@ -70,6 +69,16 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Appli
 
         sqlSessionFactoryBean.afterPropertiesSet();
         sqlSessionFactory = sqlSessionFactoryBean.getObject();
+    }
+
+    private Configuration createConfiguration() {
+        try {
+            MybatisConfigurationFactory factory = applicationContext.getBean(MybatisConfigurationFactory.class);
+            Configuration configuration = factory.create();
+            return configuration;
+        } catch (NoSuchBeanDefinitionException e) {
+            return new Configuration();
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.jaspercloud.mybatis.autoconfigure;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.support.ddl.DdlExecuter;
 import com.jaspercloud.mybatis.support.ddl.DdlMigrateScanner;
+import com.jaspercloud.mybatis.support.plus.JasperMybatisConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,17 @@ public class JasperCloudMybatisAutoConfiguration {
     @Bean
     public DdlExecuter ddlExecuter() {
         return new DdlExecuter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MybatisConfigurationFactory mybatisConfigurationFactory() {
+        return new MybatisConfigurationFactory() {
+            @Override
+            public org.apache.ibatis.session.Configuration create() {
+                return new JasperMybatisConfiguration();
+            }
+        };
     }
 
     @Bean
