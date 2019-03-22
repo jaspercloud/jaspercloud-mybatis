@@ -25,6 +25,13 @@ public class DemoApplication implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         {
+            Map<String, Object> map = new HashMap<>();
+            map.put("content", "test");
+            map.put("limit", 3);
+            List<Test> tests = testMapper.selectListWhere("where content=#{content} limit ${limit}", map);
+            System.out.println();
+        }
+        {
             Test test = new Test();
             test.setContent("test");
             test.setNickName("test");
