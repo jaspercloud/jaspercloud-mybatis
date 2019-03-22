@@ -1,7 +1,5 @@
 package com.example.demo.mapper.test.config;
 
-import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationCustomizer;
-import com.jaspercloud.mybatis.support.plus.JasperMybatisConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration

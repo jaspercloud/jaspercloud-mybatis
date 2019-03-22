@@ -1,7 +1,5 @@
 package com.example.demo.mapper.test.entity;
 
-import com.jaspercloud.mybatis.support.plus.annotation.SelectKey;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -10,7 +8,6 @@ import javax.persistence.Id;
 public class Test {
 
     @Id
-    @SelectKey(statement = "select nextval('seq_test')", before = true)
     private Long id;
     private String content;
     private String nickName;
@@ -18,7 +15,6 @@ public class Test {
     private String userName;
     @Column(name = "pass_wd")
     private String password;
-    @SelectKey(statement = "select nextval('seq_test')", before = true)
     @Column(name = "seq_test")
     private Long seq;
 

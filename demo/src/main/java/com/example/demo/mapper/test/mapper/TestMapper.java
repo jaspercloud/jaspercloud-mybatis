@@ -1,7 +1,7 @@
 package com.example.demo.mapper.test.mapper;
 
 import com.example.demo.mapper.test.entity.Test;
-import com.jaspercloud.mybatis.support.plus.BaseMapper;
+import com.jaspercloud.plus.BaseMapper;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
