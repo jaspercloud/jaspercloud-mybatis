@@ -2,4 +2,5 @@
 org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
 com.jaspercloud.mybatis.autoconfigure.JasperCloudMybatisAutoConfigurationFilter
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.jaspercloud.plus.autoconfigure.JasperCloudMybatisPlusAutoConfiguration,\
 com.jaspercloud.mybatis.autoconfigure.JasperCloudMybatisAutoConfiguration
