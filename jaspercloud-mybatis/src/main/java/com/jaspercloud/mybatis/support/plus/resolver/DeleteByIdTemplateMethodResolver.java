@@ -11,7 +11,6 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.scripting.LanguageDriver;
-import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 
 import java.lang.reflect.Method;
 
@@ -31,8 +30,8 @@ public class DeleteByIdTemplateMethodResolver implements TemplateMethodResolver 
 
         String mappedStatementId = type.getName() + "." + method.getName();
         String sql = genSqlScript(tableInfo);
-        LanguageDriver languageDriver = MapperUtil.getLanguageDriver(assistant, method);
-        SqlSource sqlSource = languageDriver.createSqlSource(config, sql, modelClass);
+        LanguageDriver lang = MapperUtil.getLanguageDriver(assistant, method);
+        SqlSource sqlSource = lang.createSqlSource(config, sql, modelClass);
         StatementType statementType = StatementType.PREPARED;
         SqlCommandType sqlCommandType = SqlCommandType.UPDATE;
         Integer fetchSize = null;
@@ -49,7 +48,6 @@ public class DeleteByIdTemplateMethodResolver implements TemplateMethodResolver 
         String keyProperty = null;
         String keyColumn = null;
         String databaseId = null;
-        LanguageDriver lang = new XMLLanguageDriver();
         String resultSets = null;
         assistant.addMappedStatement(
                 mappedStatementId,

@@ -17,24 +17,31 @@ public interface BaseMapper<T> {
     @TemplateMethod(DeleteByIdTemplateMethodResolver.class)
     long deleteById(Long id);
 
+    @TemplateMethod(DeleteWhereTemplateMethodResolver.class)
+    long deleteWhere(@Param(DeleteWhereTemplateMethodResolver.WHERE) String where,
+                     @Param(DeleteWhereTemplateMethodResolver.PARAMS) Map<String, Object> map);
+
     @TemplateMethod(SelectByIdTemplateMethodResolver.class)
     T selectById(Long id);
 
     @TemplateMethod(SelectAllTemplateMethodResolver.class)
-    List<T> selectAll();
+    List<T> selectList();
 
     @TemplateMethod(SelectByMapTemplateMethodResolver.class)
     T selectOneByMap(Map<String, Object> map);
 
     @TemplateMethod(SelectByMapTemplateMethodResolver.class)
-    List<T> selectByMap(Map<String, Object> map);
+    List<T> selectListByMap(Map<String, Object> map);
 
-    @TemplateMethod(SelectCountTemplateMethodResolver.class)
-    long selectCount();
+    @TemplateMethod(SelectWhereTemplateMethodResolver.class)
+    T selectOneWhere(@Param(SelectWhereTemplateMethodResolver.WHERE) String where,
+                     @Param(SelectWhereTemplateMethodResolver.PARAMS) Map<String, Object> map);
 
-    @TemplateMethod(UpdateSQLTemplateMethodResolver.class)
-    long updateSQL(@Param("sql") String sql);
+    @TemplateMethod(SelectWhereTemplateMethodResolver.class)
+    List<T> selectListWhere(@Param(SelectWhereTemplateMethodResolver.WHERE) String where,
+                            @Param(SelectWhereTemplateMethodResolver.PARAMS) Map<String, Object> map);
 
-    @TemplateMethod(SelectSQLTemplateMethodResolver.class)
-    List<T> selectSQL(@Param("sql") String sql);
+    @TemplateMethod(SelectCountWhereTemplateMethodResolver.class)
+    long selectCount(@Param(SelectCountWhereTemplateMethodResolver.WHERE) String where,
+                     @Param(SelectCountWhereTemplateMethodResolver.PARAMS) Map<String, Object> map);
 }

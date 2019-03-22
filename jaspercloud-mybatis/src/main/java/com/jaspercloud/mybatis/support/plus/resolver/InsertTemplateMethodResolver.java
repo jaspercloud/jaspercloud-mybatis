@@ -10,7 +10,6 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.scripting.LanguageDriver;
-import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -31,8 +30,8 @@ public class InsertTemplateMethodResolver implements TemplateMethodResolver {
 
         String mappedStatementId = type.getName() + "." + method.getName();
         String sql = genSqlScript(tableInfo);
-        LanguageDriver languageDriver = MapperUtil.getLanguageDriver(assistant, method);
-        SqlSource sqlSource = languageDriver.createSqlSource(config, sql, modelClass);
+        LanguageDriver lang = MapperUtil.getLanguageDriver(assistant, method);
+        SqlSource sqlSource = lang.createSqlSource(config, sql, modelClass);
         StatementType statementType = StatementType.PREPARED;
         SqlCommandType sqlCommandType = SqlCommandType.INSERT;
         Integer fetchSize = null;
@@ -45,11 +44,10 @@ public class InsertTemplateMethodResolver implements TemplateMethodResolver {
         boolean flushCache = true;
         boolean useCache = false;
         boolean resultOrdered = false;
-        KeyGenerator keyGenerator = MapperUtil.handleSelectKeyAnnotation(config, assistant, mappedStatementId, tableInfo, modelClass, languageDriver);
+        KeyGenerator keyGenerator = MapperUtil.handleSelectKeyAnnotation(config, assistant, mappedStatementId, tableInfo, modelClass, lang);
         String keyProperty = null;
         String keyColumn = null;
         String databaseId = null;
-        LanguageDriver lang = new XMLLanguageDriver();
         String resultSets = null;
         assistant.addMappedStatement(
                 mappedStatementId,

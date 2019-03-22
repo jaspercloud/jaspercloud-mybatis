@@ -1,5 +1,6 @@
 package com.jaspercloud.mybatis.support.plus.resolver;
 
+import com.jaspercloud.mybatis.support.plus.BaseWhereSQLSource;
 import com.jaspercloud.mybatis.support.plus.JasperMybatisConfiguration;
 import com.jaspercloud.mybatis.support.plus.MapperUtil;
 import com.jaspercloud.mybatis.support.plus.TableInfo;
@@ -11,11 +12,13 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.scripting.LanguageDriver;
-import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 
 import java.lang.reflect.Method;
 
-public class SelectCountTemplateMethodResolver implements TemplateMethodResolver {
+public class DeleteWhereTemplateMethodResolver implements TemplateMethodResolver {
+
+    public static final String WHERE = "where";
+    public static final String PARAMS = "params";
 
     @Override
     public void resolver(JasperMybatisConfiguration config, Class<?> type, Class<?> modelClass, Method method) {
@@ -31,10 +34,10 @@ public class SelectCountTemplateMethodResolver implements TemplateMethodResolver
 
         String mappedStatementId = type.getName() + "." + method.getName();
         String sql = genSqlScript(tableInfo);
-        LanguageDriver languageDriver = MapperUtil.getLanguageDriver(assistant, method);
-        SqlSource sqlSource = languageDriver.createSqlSource(config, sql, modelClass);
+        LanguageDriver lang = MapperUtil.getLanguageDriver(assistant, method);
+        SqlSource sqlSource = new BaseWhereSQLSource(config, sql, modelClass);
         StatementType statementType = StatementType.PREPARED;
-        SqlCommandType sqlCommandType = SqlCommandType.SELECT;
+        SqlCommandType sqlCommandType = SqlCommandType.DELETE;
         Integer fetchSize = null;
         Integer timeout = null;
         String parameterMap = null;
@@ -49,7 +52,6 @@ public class SelectCountTemplateMethodResolver implements TemplateMethodResolver
         String keyProperty = null;
         String keyColumn = null;
         String databaseId = null;
-        LanguageDriver lang = new XMLLanguageDriver();
         String resultSets = null;
         assistant.addMappedStatement(
                 mappedStatementId,
@@ -78,9 +80,7 @@ public class SelectCountTemplateMethodResolver implements TemplateMethodResolver
     private String genSqlScript(TableInfo tableInfo) {
         String tableName = tableInfo.getTableName();
         StringBuilder builder = new StringBuilder();
-        builder.append("<script>\n");
-        builder.append("select count(*) from ").append(tableName).append("\n");
-        builder.append("</script>\n");
+        builder.append("delete from ").append(tableName).append(" ").append("\n");
         String sql = builder.toString();
         return sql;
     }

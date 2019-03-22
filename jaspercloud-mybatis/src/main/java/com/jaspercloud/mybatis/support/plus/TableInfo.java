@@ -1,5 +1,7 @@
 package com.jaspercloud.mybatis.support.plus;
 
+import com.jaspercloud.mybatis.support.plus.annotation.SelectKey;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class TableInfo {
         private String columnName;
         private String propertyName;
         private Class<?> type;
-        private String generateSql;
+        private SelectKey selectKey;
 
         public String getColumnName() {
             return columnName;
@@ -64,12 +66,12 @@ public class TableInfo {
             this.type = type;
         }
 
-        public String getGenerateSql() {
-            return generateSql;
+        public SelectKey getSelectKey() {
+            return selectKey;
         }
 
-        public void setGenerateSql(String generateSql) {
-            this.generateSql = generateSql;
+        public void setSelectKey(SelectKey selectKey) {
+            this.selectKey = selectKey;
         }
 
         public TableColumn() {

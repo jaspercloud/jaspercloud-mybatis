@@ -1,5 +1,6 @@
 package com.jaspercloud.mybatis.support.plus.resolver;
 
+import com.jaspercloud.mybatis.support.plus.BaseWhereSQLSource;
 import com.jaspercloud.mybatis.support.plus.JasperMybatisConfiguration;
 import com.jaspercloud.mybatis.support.plus.MapperUtil;
 import com.jaspercloud.mybatis.support.plus.TableInfo;
@@ -11,11 +12,13 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.scripting.LanguageDriver;
-import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 
 import java.lang.reflect.Method;
 
-public class SelectSQLTemplateMethodResolver implements TemplateMethodResolver {
+public class SelectCountWhereTemplateMethodResolver implements TemplateMethodResolver {
+
+    public static final String WHERE = "where";
+    public static final String PARAMS = "params";
 
     @Override
     public void resolver(JasperMybatisConfiguration config, Class<?> type, Class<?> modelClass, Method method) {
@@ -31,8 +34,8 @@ public class SelectSQLTemplateMethodResolver implements TemplateMethodResolver {
 
         String mappedStatementId = type.getName() + "." + method.getName();
         String sql = genSqlScript(tableInfo);
-        LanguageDriver languageDriver = MapperUtil.getLanguageDriver(assistant, method);
-        SqlSource sqlSource = languageDriver.createSqlSource(config, sql, modelClass);
+        LanguageDriver lang = MapperUtil.getLanguageDriver(assistant, method);
+        SqlSource sqlSource = new BaseWhereSQLSource(config, sql, modelClass);
         StatementType statementType = StatementType.PREPARED;
         SqlCommandType sqlCommandType = SqlCommandType.SELECT;
         Integer fetchSize = null;
@@ -40,7 +43,7 @@ public class SelectSQLTemplateMethodResolver implements TemplateMethodResolver {
         String parameterMap = null;
         Class<?> parameterType = MapperUtil.getParameterType(method);
         String resultMap = null;
-        Class<?> resultType = modelClass;
+        Class<?> resultType = method.getReturnType();
         ResultSetType resultSetType = ResultSetType.FORWARD_ONLY;
         boolean flushCache = true;
         boolean useCache = false;
@@ -49,7 +52,6 @@ public class SelectSQLTemplateMethodResolver implements TemplateMethodResolver {
         String keyProperty = null;
         String keyColumn = null;
         String databaseId = null;
-        LanguageDriver lang = new XMLLanguageDriver();
         String resultSets = null;
         assistant.addMappedStatement(
                 mappedStatementId,
@@ -76,10 +78,9 @@ public class SelectSQLTemplateMethodResolver implements TemplateMethodResolver {
     }
 
     private String genSqlScript(TableInfo tableInfo) {
+        String tableName = tableInfo.getTableName();
         StringBuilder builder = new StringBuilder();
-        builder.append("<script>\n");
-        builder.append("${sql}");
-        builder.append("</script>\n");
+        builder.append("select count(*) from ").append(tableName).append("\n");
         String sql = builder.toString();
         return sql;
     }
