@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.*;
 @Mapper
 public interface TestMapper extends BaseMapper<Test> {
 
+    @Results(
+            @Result(column = "pass_wd", property = "password")
+    )
     @Select("select * from test where id=#{id}")
     Test selectByIdTest(@Param("id") Long id);
 

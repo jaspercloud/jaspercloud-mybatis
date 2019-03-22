@@ -2,12 +2,12 @@ package com.example.demo;
 
 import com.example.demo.mapper.test.entity.Test;
 import com.example.demo.mapper.test.mapper.TestMapper;
-import org.apache.ibatis.jdbc.SQL;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,38 +34,18 @@ public class DemoApplication implements InitializingBean {
             System.out.println();
         }
         {
-            Test test = new Test();
-            test.setId(100L);
-            test.setContent("update");
-            test.setNickName("update");
-            test.setUserName("update");
-            test.setPassword("update");
-            long result = testMapper.updateById(test);
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", 100L);
+            map.put("minId", 20L);
+            List<Test> tests = testMapper.selectListWhere("where id=#{id}", map);
+            List<Test> tests1 = testMapper.selectListWhere("", map);
+            long id = testMapper.deleteWhere("where id=#{id}", Collections.singletonMap("id", 20L));
             System.out.println();
         }
         {
-            long result = testMapper.deleteById(100L);
-            System.out.println();
-        }
-        {
-            String sql = new SQL() {
-                {
-                    SELECT("*");
-                    FROM("test");
-                    WHERE("id=2000");
-                }
-            }.toString();
-            List<Test> tests = testMapper.selectSQL(sql);
-            System.out.println();
-        }
-        {
-            String sql = new SQL() {
-                {
-                    DELETE_FROM("test");
-                    WHERE("id=2000");
-                }
-            }.toString();
-            long result = testMapper.updateSQL(sql);
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", 100L);
+            List<Test> tests = testMapper.selectListWhere("where id=#{id}", map);
             System.out.println();
         }
         {
@@ -79,16 +59,30 @@ public class DemoApplication implements InitializingBean {
             Map<String, Object> map = new HashMap<>();
             map.put("content", "test1");
             map.put("nickName", "test2");
-            List<Test> tests = testMapper.selectByMap(map);
+            List<Test> tests = testMapper.selectListByMap(map);
             System.out.println();
         }
         {
             Test test = testMapper.selectById(2000L);
-            List<Test> tests = testMapper.selectAll();
+            List<Test> tests = testMapper.selectList();
             System.out.println();
         }
         {
-            long count = testMapper.selectCount();
+            long count = testMapper.selectCount("where id>=#{id}", Collections.singletonMap("id", 20L));
+            System.out.println();
+        }
+        {
+            Test test = new Test();
+            test.setId(100L);
+            test.setContent("update");
+            test.setNickName("update");
+            test.setUserName("update");
+            test.setPassword("update");
+            long result = testMapper.updateById(test);
+            System.out.println();
+        }
+        {
+            long result = testMapper.deleteById(100L);
             System.out.println();
         }
     }
