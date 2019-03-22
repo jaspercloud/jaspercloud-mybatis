@@ -5,7 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
-import org.apache.ibatis.scripting.defaults.RawSqlSource;
+import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
+import org.apache.ibatis.scripting.xmltags.TextSqlNode;
 import org.apache.ibatis.session.Configuration;
 
 import java.util.Map;
@@ -29,7 +30,7 @@ public class BaseWhereSQLSource implements SqlSource {
         String sql = new StringBuilder(baseSql).append(StringUtils.isNotEmpty(where) ? where : "").toString();
         Map<String, Object> map = (Map<String, Object>) paramMap.get(SelectWhereTemplateMethodResolver.PARAMS);
         paramMap.putAll(map);
-        SqlSource sqlSource = new RawSqlSource(configuration, sql, modelClass);
+        SqlSource sqlSource = new DynamicSqlSource(configuration, new TextSqlNode(sql));
         BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
         return boundSql;
     }
