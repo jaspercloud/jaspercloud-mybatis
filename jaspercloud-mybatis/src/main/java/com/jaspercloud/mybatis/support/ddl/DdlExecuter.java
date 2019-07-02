@@ -83,10 +83,10 @@ public class DdlExecuter {
 
     private void checkTable(JdbcTemplate jdbcTemplate) {
         String createTableSql = "create table if not exists ddl_history (" +
-                "\"name\" varchar(128)," +
-                "\"version\" int4," +
-                "\"create_time\" timestamp," +
-                "unique (\"name\", \"version\")" +
+                "name varchar(128)," +
+                "version int4," +
+                "create_time timestamp," +
+                "unique (name, version)" +
                 ")";
         jdbcTemplate.update(createTableSql);
     }
