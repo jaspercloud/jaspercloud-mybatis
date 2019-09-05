@@ -8,6 +8,8 @@ import com.jaspercloud.mybatis.support.JasperCloudTransactionManagerFactoryBean;
 import com.jaspercloud.mybatis.util.JasperCloudDaoBeanFactory;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -23,6 +25,8 @@ import org.springframework.core.env.Environment;
  */
 public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAware, BeanDefinitionRegistryPostProcessor, Ordered {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     private Environment environment;
 
     @Override
@@ -34,6 +38,11 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 //        Map<String, Object> map = EnvironmentUtils.extractProperties((ConfigurableEnvironment) environment);
         String[] names = environment.getProperty("spring.jaspercloud.db.names", new String[]{}.getClass());
+        if (null == names || names.length <= 0) {
+            logger.info("disable JasperCloudMybatis");
+            return;
+        }
+        logger.info("enable JasperCloudMybatis");
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             boolean primary = (0 == i) ? true : false;
