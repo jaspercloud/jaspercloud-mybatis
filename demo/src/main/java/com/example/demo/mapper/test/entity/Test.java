@@ -1,22 +1,26 @@
 package com.example.demo.mapper.test.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
-@Entity(name = "test")
+@TableName("test")
+@KeySequence(value = "seq_test")
 public class Test {
 
-    @Id
+    @TableId(type = IdType.INPUT)
     private Long id;
-    private String content;
-    private String nickName;
-    @Column(name = "username")
-    private String userName;
-    @Column(name = "pass_wd")
-    private String password;
-    @Column(name = "seq_test")
-    private Long seq;
+    @TableField
+    private String imsi;
+    @TableField
+    private String imei;
+    @TableField("school_id")
+    private Long schoolId;
+
+    public Test() {
+    }
 
     public Long getId() {
         return id;
@@ -26,46 +30,27 @@ public class Test {
         this.id = id;
     }
 
-    public String getContent() {
-        return content;
+    public String getImsi() {
+        return imsi;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setImsi(String imsi) {
+        this.imsi = imsi;
     }
 
-    public String getNickName() {
-        return nickName;
+    public String getImei() {
+        return imei;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
+    public void setImei(String imei) {
+        this.imei = imei;
     }
 
-    public String getUserName() {
-        return userName;
+    public Long getSchoolId() {
+        return schoolId;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Long getSeq() {
-        return seq;
-    }
-
-    public void setSeq(Long seq) {
-        this.seq = seq;
-    }
-
-    public Test() {
+    public void setSchoolId(Long schoolId) {
+        this.schoolId = schoolId;
     }
 }

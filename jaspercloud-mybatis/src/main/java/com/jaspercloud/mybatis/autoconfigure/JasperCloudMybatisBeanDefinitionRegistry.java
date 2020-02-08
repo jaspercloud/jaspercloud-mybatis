@@ -36,7 +36,6 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-//        Map<String, Object> map = EnvironmentUtils.extractProperties((ConfigurableEnvironment) environment);
         String[] names = environment.getProperty("spring.jaspercloud.db.names", new String[]{}.getClass());
         if (null == names || names.length <= 0) {
             logger.info("disable JasperCloudMybatis");

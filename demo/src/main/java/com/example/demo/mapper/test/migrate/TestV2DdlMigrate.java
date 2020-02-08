@@ -13,6 +13,6 @@ public class TestV2DdlMigrate implements DdlMigrate {
 
     @Override
     public void execute(JdbcTemplate jdbcTemplate) {
-        jdbcTemplate.update("insert into test (id,content) values (?,?)", new Object[]{1, "test"});
+        jdbcTemplate.execute("alter table test add column school_id int8");
     }
 }

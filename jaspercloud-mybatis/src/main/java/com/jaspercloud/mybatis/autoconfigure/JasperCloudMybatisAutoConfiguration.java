@@ -1,5 +1,6 @@
 package com.jaspercloud.mybatis.autoconfigure;
 
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.support.ddl.DdlExecuter;
 import com.jaspercloud.mybatis.support.ddl.DdlMigrateScanner;
@@ -35,19 +36,8 @@ public class JasperCloudMybatisAutoConfiguration {
     public MybatisConfigurationFactory mybatisConfigurationFactory() {
         return new MybatisConfigurationFactory() {
             @Override
-            public org.apache.ibatis.session.Configuration create() {
-                return new org.apache.ibatis.session.Configuration();
-            }
-        };
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public MybatisConfigurationCustomizer defaultMybatisConfigurationCustomizer() {
-        return new MybatisConfigurationCustomizer() {
-            @Override
-            public void customize(String name, org.apache.ibatis.session.Configuration configuration) {
-                configuration.setMapUnderscoreToCamelCase(true);
+            public MybatisConfiguration create() {
+                return new MybatisConfiguration();
             }
         };
     }

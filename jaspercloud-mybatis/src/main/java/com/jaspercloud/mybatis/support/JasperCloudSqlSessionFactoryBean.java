@@ -1,12 +1,18 @@
 package com.jaspercloud.mybatis.support;
 
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator;
+import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
+import com.baomidou.mybatisplus.core.injector.ISqlInjector;
+import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationCustomizer;
 import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationFactory;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.properties.MybatisProperties;
-import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
 import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
 import org.springframework.beans.BeansException;
@@ -15,18 +21,23 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.io.Resource;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created by TimoRD on 2017/9/8.
  */
-public class JasperCloudSqlSessionFactoryBean implements InitializingBean, ApplicationContextAware, FactoryBean<SqlSessionFactory> {
+public class JasperCloudSqlSessionFactoryBean implements InitializingBean, ApplicationContextAware, ResourceLoaderAware, FactoryBean<SqlSessionFactory> {
 
     private String name;
     private ApplicationContext applicationContext;
+    private ResourceLoader resourceLoader;
     private DataSource dataSource;
     private JasperCloudDaoProperties jasperCloudDaoProperties;
     private SqlSessionFactory sqlSessionFactory;
@@ -49,35 +60,74 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Appli
     }
 
     @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    @Override
     public void afterPropertiesSet() throws Exception {
-        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
-        MybatisProperties mybatisProperties = jasperCloudDaoProperties.getMybatis().get(name);
-        Configuration configuration = createConfiguration();
+        MybatisProperties properties = jasperCloudDaoProperties.getMybatis().get(name);
+        MybatisConfiguration configuration = createConfiguration();
         Map<String, MybatisConfigurationCustomizer> customizerMap = applicationContext.getBeansOfType(MybatisConfigurationCustomizer.class);
         for (MybatisConfigurationCustomizer customizer : customizerMap.values()) {
             customizer.customize(name, configuration);
         }
-        sqlSessionFactoryBean.setDataSource(dataSource);
-        sqlSessionFactoryBean.setConfiguration(configuration);
-        sqlSessionFactoryBean.setVfs(SpringBootVFS.class);
-        sqlSessionFactoryBean.setTransactionFactory(new SpringManagedTransactionFactory());
 
-        if (null != mybatisProperties) {
-            Resource[] resources = mybatisProperties.resolveMapperLocations();
-            sqlSessionFactoryBean.setMapperLocations(resources);
+        MybatisSqlSessionFactoryBean factory = new MybatisSqlSessionFactoryBean();
+        factory.setDataSource(dataSource);
+        factory.setConfiguration(configuration);
+        factory.setTransactionFactory(new SpringManagedTransactionFactory());
+        factory.setVfs(SpringBootVFS.class);
+        if (StringUtils.hasText(properties.getConfigLocation())) {
+            factory.setConfigLocation(resourceLoader.getResource(properties.getConfigLocation()));
         }
-
-        sqlSessionFactoryBean.afterPropertiesSet();
-        sqlSessionFactory = sqlSessionFactoryBean.getObject();
+        if (properties.getConfigurationProperties() != null) {
+            factory.setConfigurationProperties(properties.getConfigurationProperties());
+        }
+        if (StringUtils.hasLength(properties.getTypeAliasesPackage())) {
+            factory.setTypeAliasesPackage(properties.getTypeAliasesPackage());
+        }
+        if (StringUtils.hasLength(properties.getTypeHandlersPackage())) {
+            factory.setTypeHandlersPackage(properties.getTypeHandlersPackage());
+        }
+        if (!ObjectUtils.isEmpty(properties.resolveMapperLocations())) {
+            factory.setMapperLocations(properties.resolveMapperLocations());
+        }
+        //此处必为非 NULL
+        GlobalConfig globalConfig = GlobalConfigUtils.defaults();
+        //注入填充器
+        getBeanThen(MetaObjectHandler.class, globalConfig::setMetaObjectHandler);
+        //注入主键生成器
+        getBeanThen(IKeyGenerator.class, i -> globalConfig.getDbConfig().setKeyGenerator(i));
+        //注入sql注入器
+        getBeanThen(ISqlInjector.class, globalConfig::setSqlInjector);
+        //注入ID生成器
+        getBeanThen(IdentifierGenerator.class, globalConfig::setIdentifierGenerator);
+        //设置 GlobalConfig 到 MybatisSqlSessionFactoryBean
+        factory.setGlobalConfig(globalConfig);
+        sqlSessionFactory = factory.getObject();
     }
 
-    private Configuration createConfiguration() {
+    /**
+     * 检查spring容器里是否有对应的bean,有则进行消费
+     *
+     * @param clazz    class
+     * @param consumer 消费
+     * @param <T>      泛型
+     */
+    private <T> void getBeanThen(Class<T> clazz, Consumer<T> consumer) {
+        if (applicationContext.getBeanNamesForType(clazz, false, false).length > 0) {
+            consumer.accept(applicationContext.getBean(clazz));
+        }
+    }
+
+    private MybatisConfiguration createConfiguration() {
         try {
             MybatisConfigurationFactory factory = applicationContext.getBean(MybatisConfigurationFactory.class);
-            Configuration configuration = factory.create();
+            MybatisConfiguration configuration = factory.create();
             return configuration;
         } catch (NoSuchBeanDefinitionException e) {
-            return new Configuration();
+            return new MybatisConfiguration();
         }
     }
 

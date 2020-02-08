@@ -1,8 +1,8 @@
 package com.jaspercloud.mybatis.autoconfigure;
 
-import org.apache.ibatis.session.Configuration;
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
 
 public interface MybatisConfigurationFactory {
 
-    Configuration create();
+    MybatisConfiguration create();
 }
