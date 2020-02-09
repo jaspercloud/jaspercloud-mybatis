@@ -11,11 +11,14 @@ import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
@@ -23,11 +26,17 @@ import org.springframework.core.env.Environment;
 /**
  * Created by TimoRD on 2018/2/3.
  */
-public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAware, BeanDefinitionRegistryPostProcessor, Ordered {
+public class JasperCloudMybatisBeanDefinitionRegistry implements ApplicationContextAware, EnvironmentAware, BeanDefinitionRegistryPostProcessor, Ordered {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    private ApplicationContext applicationContext;
     private Environment environment;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
     @Override
     public void setEnvironment(Environment environment) {
@@ -72,6 +81,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
     private void registerJasperCloudDataSourceTransactionManagerFactoryBean(BeanDefinitionRegistry registry, String name, boolean primary) {
         String beanName = name + "DataSourceTransactionManager";
         BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudTransactionManagerFactoryBean.class);
+        definitionBuilder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
         definitionBuilder.addConstructorArgValue(name);
         definitionBuilder.addPropertyReference("dataSource", name + "DataSource");
         AbstractBeanDefinition beanDefinition = definitionBuilder.getBeanDefinition();
@@ -83,6 +93,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
     private void registerJasperCloudSqlSessionFactoryBean(BeanDefinitionRegistry registry, String name, boolean primary) {
         String beanName = name + "SqlSessionFactory";
         BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudSqlSessionFactoryBean.class);
+        definitionBuilder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
         definitionBuilder.addConstructorArgValue(name);
         definitionBuilder.addPropertyReference("dataSource", name + "DataSource");
         definitionBuilder.addPropertyReference("jasperCloudDaoProperties", JasperCloudDaoProperties.BeanName);
@@ -94,6 +105,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
     private void registerJasperCloudSqlSessionTemplateFactoryBean(BeanDefinitionRegistry registry, String name, boolean primary) {
         String beanName = name + "SqlSessionTemplate";
         BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudSqlSessionTemplateFactoryBean.class);
+        definitionBuilder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
         definitionBuilder.addConstructorArgValue(name);
         definitionBuilder.addPropertyReference("sqlSessionFactory", name + "SqlSessionFactory");
         definitionBuilder.addPropertyReference("jasperCloudDaoProperties", JasperCloudDaoProperties.BeanName);
@@ -107,6 +119,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
         {
             String beanName = name + "DataSource";
             BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudDataSourceFactoryBean.class);
+            definitionBuilder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
             definitionBuilder.addConstructorArgValue(name);
             definitionBuilder.addPropertyReference("jasperCloudDaoProperties", JasperCloudDaoProperties.BeanName);
             definitionBuilder.addPropertyReference("ddlExecuter", "ddlExecuter");
@@ -115,6 +128,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
         }
         if (primary) {
             BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudDataSourceFactoryBean.class);
+            definitionBuilder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
             definitionBuilder.addConstructorArgValue(name);
             definitionBuilder.addPropertyReference("jasperCloudDaoProperties", JasperCloudDaoProperties.BeanName);
             definitionBuilder.addPropertyReference("ddlExecuter", "ddlExecuter");
@@ -126,6 +140,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements EnvironmentAwar
 
     private void registerJasperCloudDaoBeanFactory(BeanDefinitionRegistry registry) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudDaoBeanFactory.class);
+        builder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
         AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
         registry.registerBeanDefinition("jasperCloudDaoBeanFactory", beanDefinition);
     }

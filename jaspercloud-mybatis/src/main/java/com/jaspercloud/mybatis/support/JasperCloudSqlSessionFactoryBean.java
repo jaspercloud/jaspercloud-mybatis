@@ -12,13 +12,17 @@ import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationCustomizer;
 import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationFactory;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.properties.MybatisProperties;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
 import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ResourceLoaderAware;
@@ -36,6 +40,9 @@ import java.util.function.Consumer;
 public class JasperCloudSqlSessionFactoryBean implements InitializingBean, ApplicationContextAware, ResourceLoaderAware, FactoryBean<SqlSessionFactory> {
 
     private String name;
+    private Interceptor[] interceptors;
+    private TypeHandler[] typeHandlers;
+    private LanguageDriver[] languageDrivers;
     private ApplicationContext applicationContext;
     private ResourceLoader resourceLoader;
     private DataSource dataSource;
@@ -50,8 +57,14 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Appli
         this.jasperCloudDaoProperties = jasperCloudDaoProperties;
     }
 
-    public JasperCloudSqlSessionFactoryBean(String name) {
+    public JasperCloudSqlSessionFactoryBean(String name,
+                                            ObjectProvider<Interceptor[]> interceptorsProvider,
+                                            ObjectProvider<TypeHandler[]> typeHandlersProvider,
+                                            ObjectProvider<LanguageDriver[]> languageDriversProvider) {
         this.name = name;
+        this.interceptors = interceptorsProvider.getIfAvailable();
+        this.typeHandlers = typeHandlersProvider.getIfAvailable();
+        this.languageDrivers = languageDriversProvider.getIfAvailable();
     }
 
     @Override
@@ -92,6 +105,15 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Appli
         }
         if (!ObjectUtils.isEmpty(properties.resolveMapperLocations())) {
             factory.setMapperLocations(properties.resolveMapperLocations());
+        }
+        if (!ObjectUtils.isEmpty(interceptors)) {
+            factory.setPlugins(interceptors);
+        }
+        if (!ObjectUtils.isEmpty(typeHandlers)) {
+            factory.setTypeHandlers(typeHandlers);
+        }
+        if (!ObjectUtils.isEmpty(languageDrivers)) {
+            factory.setScriptingLanguageDrivers(languageDrivers);
         }
         //此处必为非 NULL
         GlobalConfig globalConfig = GlobalConfigUtils.defaults();
