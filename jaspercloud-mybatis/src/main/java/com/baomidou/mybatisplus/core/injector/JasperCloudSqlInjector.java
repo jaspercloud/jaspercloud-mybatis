@@ -7,17 +7,15 @@ import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ResultMap;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class JasperCloudSqlInjector extends DefaultSqlInjector {
 
@@ -33,45 +31,32 @@ public class JasperCloudSqlInjector extends DefaultSqlInjector {
      * @param entity mapper entity
      */
     public void addConfig(Class<?> define, Class<?> entity) {
+        List<String> defineFields = TableInfoHelper.getAllFields(define).stream()
+                .map(e -> e.getName()).collect(Collectors.toList());
+        List<String> entityFields = TableInfoHelper.getAllFields(entity).stream()
+                .map(e -> e.getName()).collect(Collectors.toList());
+        boolean equals = Arrays.equals(defineFields.toArray(), entityFields.toArray());
+        if (!equals) {
+            throw new IllegalArgumentException("lack define fields");
+        }
         config.put(entity, define);
     }
 
     @Override
     public void inspectInject(MapperBuilderAssistant builderAssistant, Class<?> mapperClass) {
         Class<?> modelClass = super.extractModelClass(mapperClass);
-        Class<?> define = config.get(modelClass);
-
-        List<MappedStatement> before = new ArrayList<>(builderAssistant.getConfiguration().getMappedStatements());
-        doInspectInject(builderAssistant, mapperClass);
-        List<MappedStatement> after = new ArrayList<>(builderAssistant.getConfiguration().getMappedStatements());
-        for (MappedStatement mappedStatement : after) {
-            if (!before.contains(mappedStatement)) {
-                List<ResultMap> resultMaps = mappedStatement.getResultMaps();
-                for (ResultMap resultMap : resultMaps) {
-                    Object type = getField(resultMap, "type");
-                    if (Objects.equals(type, define)) {
-                        replaceField(resultMap, "type", modelClass);
-                    }
-                }
-            }
+        Class<?> defineClass = config.get(modelClass);
+        if (null == defineClass) {
+            defineClass = modelClass;
         }
-    }
-
-    private void doInspectInject(MapperBuilderAssistant builderAssistant, Class<?> mapperClass) {
-        Class<?> modelClass = super.extractModelClass(mapperClass);
-        Class<?> entityClass = config.get(modelClass);
-        if (null == entityClass) {
-            entityClass = modelClass;
-        }
-        final Class<?> finalEntityClass = entityClass;
-        if (finalEntityClass != null) {
+        if (defineClass != null) {
             String className = mapperClass.toString();
             Set<String> mapperRegistryCache = GlobalConfigUtils.getMapperRegistryCache(builderAssistant.getConfiguration());
             if (!mapperRegistryCache.contains(className)) {
                 List<AbstractMethod> methodList = this.getMethodList(mapperClass);
                 if (CollectionUtils.isNotEmpty(methodList)) {
-                    TableInfo tableInfo = TableInfoHelper.initTableInfo(builderAssistant, finalEntityClass);
-                    replaceField(tableInfo, "entityType", entityClass);
+                    TableInfo tableInfo = TableInfoHelper.initTableInfo(builderAssistant, defineClass);
+                    replaceField(tableInfo, "entityType", modelClass);
                     // 循环注入自定义方法
                     methodList.forEach(m -> m.inject(builderAssistant, mapperClass, modelClass, tableInfo));
                 } else {
