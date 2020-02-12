@@ -1,5 +1,6 @@
 package com.baomidou.mybatisplus.core.injector;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -31,6 +32,10 @@ public class JasperCloudSqlInjector extends DefaultSqlInjector {
      * @param entity mapper entity
      */
     public void addConfig(Class<?> define, Class<?> entity) {
+        TableName tableName = define.getDeclaredAnnotation(TableName.class);
+        if (null == tableName) {
+            throw new IllegalArgumentException("not found @TableName");
+        }
         List<String> defineFields = TableInfoHelper.getAllFields(define).stream()
                 .map(e -> e.getName()).collect(Collectors.toList());
         List<String> entityFields = TableInfoHelper.getAllFields(entity).stream()
