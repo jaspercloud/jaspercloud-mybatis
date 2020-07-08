@@ -14,6 +14,7 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.FileCopyUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -111,6 +112,8 @@ public class DdlMigrateScanner implements ResourceLoaderAware, EnvironmentAware 
                 try {
                     Resource[] resources = resourcePatternResolver.getResources(location);
                     return Arrays.asList(resources);
+                } catch (FileNotFoundException e) {
+                    return Arrays.asList();
                 } catch (IOException e) {
                     throw new ResourceException(e.getMessage(), e);
                 }
