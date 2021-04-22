@@ -12,6 +12,7 @@ import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationCustomizer;
 import com.jaspercloud.mybatis.autoconfigure.MybatisConfigurationFactory;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.properties.MybatisProperties;
+import com.jaspercloud.mybatis.support.table.TableKeyGenerator;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -31,6 +32,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
+import java.net.URI;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -120,7 +122,15 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Appli
         //注入填充器
         getBeanThen(MetaObjectHandler.class, globalConfig::setMetaObjectHandler);
         //注入主键生成器
-        getBeanThen(IKeyGenerator.class, i -> globalConfig.getDbConfig().setKeyGenerator(i));
+        getBeanThen(TableKeyGenerator.class, gen -> {
+            String url = jasperCloudDaoProperties.getDatasource().get(name).getUrl().replaceAll("^jdbc:", "");
+            String scheme = URI.create(url).getScheme();
+            IKeyGenerator generator = gen.getGenerator(scheme + "KeyGenerator");
+            if (null == generator) {
+                throw new IllegalArgumentException(scheme);
+            }
+            globalConfig.getDbConfig().setKeyGenerator(generator);
+        });
         //注入sql注入器
         getBeanThen(ISqlInjector.class, globalConfig::setSqlInjector);
         //注入ID生成器

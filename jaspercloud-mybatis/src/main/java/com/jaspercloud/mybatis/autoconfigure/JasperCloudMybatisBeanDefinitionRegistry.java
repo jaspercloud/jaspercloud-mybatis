@@ -12,21 +12,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
+import org.springframework.core.type.AnnotationMetadata;
 
 /**
  * Created by TimoRD on 2018/2/3.
  */
-public class JasperCloudMybatisBeanDefinitionRegistry implements ApplicationContextAware, EnvironmentAware, BeanDefinitionRegistryPostProcessor, Ordered {
+public class JasperCloudMybatisBeanDefinitionRegistry implements ApplicationContextAware, EnvironmentAware, ImportBeanDefinitionRegistrar, Ordered {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -44,7 +44,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements ApplicationCont
     }
 
     @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         String[] names = environment.getProperty("spring.jaspercloud.db.names", new String[]{}.getClass());
         if (null == names || names.length <= 0) {
             logger.info("disable JasperCloudMybatis");
@@ -143,10 +143,6 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements ApplicationCont
         builder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
         AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
         registry.registerBeanDefinition("jasperCloudDaoBeanFactory", beanDefinition);
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
     }
 
     @Override
