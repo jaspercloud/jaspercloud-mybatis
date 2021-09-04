@@ -126,10 +126,9 @@ public class JasperCloudSqlSessionFactoryBean implements InitializingBean, Appli
             String url = jasperCloudDaoProperties.getDatasource().get(name).getUrl().replaceAll("^jdbc:", "");
             String scheme = URI.create(url).getScheme();
             IKeyGenerator generator = gen.getGenerator(scheme + "KeyGenerator");
-            if (null == generator) {
-                throw new IllegalArgumentException(scheme);
+            if (null != generator) {
+                globalConfig.getDbConfig().setKeyGenerator(generator);
             }
-            globalConfig.getDbConfig().setKeyGenerator(generator);
         });
         //注入sql注入器
         getBeanThen(ISqlInjector.class, globalConfig::setSqlInjector);
