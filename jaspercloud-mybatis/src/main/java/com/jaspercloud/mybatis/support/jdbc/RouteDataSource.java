@@ -32,12 +32,12 @@ public class RouteDataSource extends AbstractDataSource {
     }
 
     public static void master() {
-        logger.info("set master");
+        logger.debug("set master");
         threadLocal.set(Master);
     }
 
     public static void slave() {
-        logger.info("set slave");
+        logger.debug("set slave");
         threadLocal.set(Slave);
     }
 
@@ -58,11 +58,11 @@ public class RouteDataSource extends AbstractDataSource {
     private DataSource selectDataSource() {
         String key = threadLocal.get();
         if (StringUtils.isEmpty(key)) {
-            logger.info("selectDataSource: master");
+            logger.debug("selectDataSource: master");
             return master;
         }
         if (StringUtils.equals(key, Master)) {
-            logger.info("selectDataSource: master");
+            logger.debug("selectDataSource: master");
             return master;
         }
         if (slaveLabels.isEmpty()) {
@@ -70,7 +70,7 @@ public class RouteDataSource extends AbstractDataSource {
         }
         int rand = RandomUtils.nextInt(0, slaveLabels.size());
         String label = slaveLabels.get(rand);
-        logger.info("selectDataSource: slave, label={}", label);
+        logger.debug("selectDataSource: slave, label={}", label);
         DataSource dataSource = slaves.get(label);
         return dataSource;
     }
