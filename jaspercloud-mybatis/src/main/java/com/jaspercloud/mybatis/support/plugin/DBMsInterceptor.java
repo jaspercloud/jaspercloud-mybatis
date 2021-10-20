@@ -47,8 +47,13 @@ public class DBMsInterceptor implements Interceptor {
         MetaObject metaObject = SystemMetaObject.forObject(executor);
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         try {
-            if (!SqlCommandType.SELECT.equals(mappedStatement.getSqlCommandType())) {
+            boolean selectKey = mappedStatement.getId().endsWith("insert!selectKey");
+            if (selectKey) {
                 RouteDataSource.master();
+            } else if (!SqlCommandType.SELECT.equals(mappedStatement.getSqlCommandType())) {
+                RouteDataSource.master();
+            } else {
+                RouteDataSource.slave();
             }
             return invocation.proceed();
         } finally {

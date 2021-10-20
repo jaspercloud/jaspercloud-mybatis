@@ -2,6 +2,8 @@ package com.jaspercloud.mybatis.support.jdbc;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.AbstractDataSource;
 
 import javax.sql.DataSource;
@@ -13,8 +15,10 @@ import java.util.Map;
 
 public class RouteDataSource extends AbstractDataSource {
 
-    public static final String Master = "master";
-    public static final String Slave = "slave";
+    private static Logger logger = LoggerFactory.getLogger(RouteDataSource.class);
+
+    private static final String Master = "master";
+    private static final String Slave = "slave";
 
     private static ThreadLocal<String> threadLocal = new InheritableThreadLocal<>();
     private DataSource master;
@@ -28,10 +32,12 @@ public class RouteDataSource extends AbstractDataSource {
     }
 
     public static void master() {
+        logger.info("set master");
         threadLocal.set(Master);
     }
 
     public static void slave() {
+        logger.info("set slave");
         threadLocal.set(Slave);
     }
 
@@ -52,13 +58,19 @@ public class RouteDataSource extends AbstractDataSource {
     private DataSource selectDataSource() {
         String key = threadLocal.get();
         if (StringUtils.isEmpty(key)) {
+            logger.info("selectDataSource: master");
             return master;
         }
         if (StringUtils.equals(key, Master)) {
+            logger.info("selectDataSource: master");
             return master;
+        }
+        if (slaveLabels.isEmpty()) {
+            throw new IllegalArgumentException("not found slaves");
         }
         int rand = RandomUtils.nextInt(0, slaveLabels.size());
         String label = slaveLabels.get(rand);
+        logger.info("selectDataSource: slave, label={}", label);
         DataSource dataSource = slaves.get(label);
         return dataSource;
     }

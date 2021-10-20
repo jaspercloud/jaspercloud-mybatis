@@ -2,7 +2,7 @@ spring.jaspercloud.db.names=db1,db2
 
 #db1 datasource
 spring.jaspercloud.datasource.db1.driverClassName=org.postgresql.Driver
-spring.jaspercloud.datasource.db1.url=jdbc:postgresql://127.0.0.1:5432/db1
+spring.jaspercloud.datasource.db1.url=jdbc:postgresql://127.0.0.1:5432/master
 spring.jaspercloud.datasource.db1.username=postgres
 spring.jaspercloud.datasource.db1.password=postgres
 spring.jaspercloud.datasource.db1.defaultAutoCommit=false
@@ -19,6 +19,12 @@ spring.jaspercloud.datasource.db1.testOnBorrow=false
 spring.jaspercloud.datasource.db1.testOnReturn=false
 spring.jaspercloud.datasource.db1.removeAbandoned=true
 spring.jaspercloud.datasource.db1.removeAbandonedTimeout=1800
+#slave s1
+spring.jaspercloud.datasource.db1.slaves.s1.url=jdbc:postgresql://127.0.0.1:5432/slave1
+spring.jaspercloud.datasource.db1.slaves.s1.defaultAutoCommit=false
+#slave s2
+spring.jaspercloud.datasource.db1.slaves.s2.url=jdbc:postgresql://127.0.0.1:5432/slave2
+spring.jaspercloud.datasource.db1.slaves.s2.defaultAutoCommit=false
 #db1 mybatis
 spring.jaspercloud.mybatis.db1.basePackages=com.jaspercloud.db1.dao.mapper
 spring.jaspercloud.mybatis.db1.mapperLocations=classpath:mapper/db1/*.xml
