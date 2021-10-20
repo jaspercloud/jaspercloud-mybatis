@@ -2,6 +2,7 @@ package com.jaspercloud.mybatis.properties;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DataSourceProperties {
@@ -24,6 +25,7 @@ public class DataSourceProperties {
     private Boolean testOnReturn;
     private Boolean removeAbandoned;
     private Integer removeAbandonedTimeout;
+    private Map<String, DataSourceProperties> slaves = new LinkedHashMap<>();
 
     public String getDriverClassName() {
         return driverClassName;
@@ -167,6 +169,14 @@ public class DataSourceProperties {
 
     public void setRemoveAbandonedTimeout(Integer removeAbandonedTimeout) {
         this.removeAbandonedTimeout = removeAbandonedTimeout;
+    }
+
+    public void setSlaves(Map<String, DataSourceProperties> slaves) {
+        this.slaves = slaves;
+    }
+
+    public Map<String, DataSourceProperties> getSlaves() {
+        return slaves;
     }
 
     public Map<String, String> toMap() throws Exception {

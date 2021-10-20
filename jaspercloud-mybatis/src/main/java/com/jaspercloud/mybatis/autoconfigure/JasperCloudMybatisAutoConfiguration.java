@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.support.ddl.DdlExecuter;
 import com.jaspercloud.mybatis.support.ddl.DdlMigrateScanner;
+import com.jaspercloud.mybatis.support.plugin.DBMsInterceptor;
 import com.jaspercloud.mybatis.support.table.TableKeyGenerator;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -49,6 +50,11 @@ public class JasperCloudMybatisAutoConfiguration {
                 return new MybatisConfiguration();
             }
         };
+    }
+
+    @Bean
+    public DBMsInterceptor dbMsInterceptor() {
+        return new DBMsInterceptor();
     }
 
     @Bean

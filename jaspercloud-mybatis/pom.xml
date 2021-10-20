@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.jaspercloud</groupId>
     <artifactId>mybatis</artifactId>
-    <version>2.5.9</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>jaspercloud-mybatis</name>
@@ -84,11 +84,34 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>io.github.jaspercloud</groupId>
-                <artifactId>mybatis-bom</artifactId>
-                <version>1.1.0</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>3.5.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>2.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.6</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>1.0.18</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus</artifactId>
+                <version>3.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -1,13 +1,16 @@
 package com.jaspercloud.mybatis.support;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
+import com.jaspercloud.mybatis.properties.DataSourceProperties;
 import com.jaspercloud.mybatis.properties.DatabaseDdlProperties;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.support.ddl.DdlExecuter;
+import com.jaspercloud.mybatis.support.jdbc.RouteDataSource;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,8 +37,18 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Map<String, String> map = jasperCloudDaoProperties.getDatasource().get(name).toMap();
-        dataSource = DruidDataSourceFactory.createDataSource(map);
+        //source
+        DataSourceProperties dataSourceProperties = jasperCloudDaoProperties.getDatasource().get(name);
+        Map<String, String> map = dataSourceProperties.toMap();
+        DataSource master = DruidDataSourceFactory.createDataSource(map);
+        Map<String, DataSource> slaves = new HashMap<>();
+        for (Map.Entry<String, DataSourceProperties> entry : dataSourceProperties.getSlaves().entrySet()) {
+            DataSource slave = DruidDataSourceFactory.createDataSource(merge(map, entry.getValue().toMap()));
+            slaves.put(entry.getKey(), slave);
+        }
+        RouteDataSource routeDataSource = new RouteDataSource(master, slaves);
+        dataSource = routeDataSource;
+        //ddl
         DatabaseDdlProperties properties = jasperCloudDaoProperties.getDdl().get(name);
         if (null != properties) {
             try {
@@ -44,6 +57,13 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
                 throw new ExceptionInInitializerError(e);
             }
         }
+    }
+
+    private Map<String, String> merge(Map<String, String> master, Map<String, String> slave) {
+        Map<String, String> map = new HashMap<>();
+        map.putAll(master);
+        map.putAll(slave);
+        return map;
     }
 
     @Override
