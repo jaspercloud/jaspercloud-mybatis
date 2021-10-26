@@ -6,6 +6,7 @@ import com.jaspercloud.mybatis.properties.DatabaseDdlProperties;
 import com.jaspercloud.mybatis.properties.JasperCloudDaoProperties;
 import com.jaspercloud.mybatis.support.ddl.DdlExecuter;
 import com.jaspercloud.mybatis.support.jdbc.RouteDataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -62,7 +63,11 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
     private Map<String, String> merge(Map<String, String> master, Map<String, String> slave) {
         Map<String, String> map = new HashMap<>();
         map.putAll(master);
-        map.putAll(slave);
+        for (Map.Entry<String, String> entry : slave.entrySet()) {
+            if (StringUtils.isNotEmpty(entry.getValue())) {
+                map.put(entry.getKey(), entry.getValue());
+            }
+        }
         return map;
     }
 
