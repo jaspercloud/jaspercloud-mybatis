@@ -130,31 +130,6 @@ public class ProxyConnection implements Connection {
     }
 
     @Override
-    public DatabaseMetaData getMetaData() throws SQLException {
-        return selectConnection().getMetaData();
-    }
-
-    @Override
-    public void setCatalog(String catalog) throws SQLException {
-        selectConnection().setCatalog(catalog);
-    }
-
-    @Override
-    public String getCatalog() throws SQLException {
-        return selectConnection().getCatalog();
-    }
-
-    @Override
-    public SQLWarning getWarnings() throws SQLException {
-        return selectConnection().getWarnings();
-    }
-
-    @Override
-    public void clearWarnings() throws SQLException {
-        selectConnection().clearWarnings();
-    }
-
-    @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
         return selectConnection().createStatement(resultSetType, resultSetConcurrency);
     }
@@ -167,26 +142,6 @@ public class ProxyConnection implements Connection {
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         return selectConnection().prepareCall(sql, resultSetType, resultSetConcurrency);
-    }
-
-    @Override
-    public Map<String, Class<?>> getTypeMap() throws SQLException {
-        return selectConnection().getTypeMap();
-    }
-
-    @Override
-    public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-        selectConnection().setTypeMap(map);
-    }
-
-    @Override
-    public void setHoldability(int holdability) throws SQLException {
-        selectConnection().setHoldability(holdability);
-    }
-
-    @Override
-    public int getHoldability() throws SQLException {
-        return selectConnection().getHoldability();
     }
 
     @Override
@@ -220,92 +175,137 @@ public class ProxyConnection implements Connection {
     }
 
     @Override
+    public DatabaseMetaData getMetaData() throws SQLException {
+        return selectConnection().getMetaData();
+    }
+
+    @Override
+    public void setCatalog(String catalog) throws SQLException {
+        selectConnection().setCatalog(catalog);
+    }
+
+    @Override
+    public String getCatalog() throws SQLException {
+        return selectConnection().getCatalog();
+    }
+
+    @Override
+    public SQLWarning getWarnings() throws SQLException {
+        return master.getWarnings();
+    }
+
+    @Override
+    public void clearWarnings() throws SQLException {
+        master.clearWarnings();
+    }
+
+    @Override
+    public Map<String, Class<?>> getTypeMap() throws SQLException {
+        return master.getTypeMap();
+    }
+
+    @Override
+    public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
+        master.setTypeMap(map);
+    }
+
+    @Override
+    public void setHoldability(int holdability) throws SQLException {
+        master.setHoldability(holdability);
+    }
+
+    @Override
+    public int getHoldability() throws SQLException {
+        return master.getHoldability();
+    }
+
+    @Override
     public Clob createClob() throws SQLException {
-        return selectConnection().createClob();
+        return master.createClob();
     }
 
     @Override
     public Blob createBlob() throws SQLException {
-        return selectConnection().createBlob();
+        return master.createBlob();
     }
 
     @Override
     public NClob createNClob() throws SQLException {
-        return selectConnection().createNClob();
+        return master.createNClob();
     }
 
     @Override
     public SQLXML createSQLXML() throws SQLException {
-        return selectConnection().createSQLXML();
+        return master.createSQLXML();
     }
 
     @Override
     public boolean isValid(int timeout) throws SQLException {
-        return selectConnection().isValid(timeout);
+        return master.isValid(timeout);
     }
 
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        selectConnection().setClientInfo(name, value);
+        master.setClientInfo(name, value);
     }
 
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        selectConnection().setClientInfo(properties);
+        master.setClientInfo(properties);
     }
 
     @Override
     public String getClientInfo(String name) throws SQLException {
-        return selectConnection().getClientInfo(name);
+        return master.getClientInfo(name);
     }
 
     @Override
     public Properties getClientInfo() throws SQLException {
-        return selectConnection().getClientInfo();
+        return master.getClientInfo();
     }
 
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-        return selectConnection().createArrayOf(typeName, elements);
+        return master.createArrayOf(typeName, elements);
     }
 
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-        return selectConnection().createStruct(typeName, attributes);
+        return master.createStruct(typeName, attributes);
     }
 
     @Override
     public void setSchema(String schema) throws SQLException {
-        selectConnection().setSchema(schema);
+        master.setSchema(schema);
     }
 
     @Override
     public String getSchema() throws SQLException {
-        return selectConnection().getSchema();
+        return master.getSchema();
     }
 
     @Override
     public void abort(Executor executor) throws SQLException {
-        selectConnection().abort(executor);
+        master.abort(executor);
     }
 
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-        selectConnection().setNetworkTimeout(executor, milliseconds);
+        master.setNetworkTimeout(executor, milliseconds);
     }
 
     @Override
     public int getNetworkTimeout() throws SQLException {
-        return selectConnection().getNetworkTimeout();
+        return master.getNetworkTimeout();
     }
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
-        return selectConnection().unwrap(iface);
+        return master.unwrap(iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return selectConnection().isWrapperFor(iface);
+        return master.isWrapperFor(iface);
     }
 }
