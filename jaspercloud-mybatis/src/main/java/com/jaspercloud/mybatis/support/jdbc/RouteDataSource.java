@@ -66,7 +66,8 @@ public class RouteDataSource extends AbstractDataSource {
             return master;
         }
         if (slaveLabels.isEmpty()) {
-            throw new IllegalArgumentException("not found slaves");
+            logger.debug("selectDataSource: not found slaves use master");
+            return master;
         }
         int rand = RandomUtils.nextInt(0, slaveLabels.size());
         String label = slaveLabels.get(rand);
