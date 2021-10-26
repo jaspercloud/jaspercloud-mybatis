@@ -41,37 +41,37 @@ public class RouteDataSource extends AbstractDataSource {
         threadLocal.set(Slave);
     }
 
+    public static boolean isSlave() {
+        String label = threadLocal.get();
+        if (StringUtils.equals(label, Slave)) {
+            return true;
+        }
+        return false;
+    }
+
     public static void remove() {
         threadLocal.remove();
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        return selectDataSource().getConnection();
+        DataSource slave = selectSlaveDataSource();
+        return new ProxyConnection(master.getConnection(), null != slave ? slave.getConnection() : null);
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        return selectDataSource().getConnection(username, password);
+        DataSource slave = selectSlaveDataSource();
+        return new ProxyConnection(master.getConnection(username, password), null != slave ? slave.getConnection(username, password) : null);
     }
 
-    private DataSource selectDataSource() {
-        String key = threadLocal.get();
-        if (StringUtils.isEmpty(key)) {
-            logger.debug("selectDataSource: master");
-            return master;
-        }
-        if (StringUtils.equals(key, Master)) {
-            logger.debug("selectDataSource: master");
-            return master;
-        }
+    private DataSource selectSlaveDataSource() {
         if (slaveLabels.isEmpty()) {
-            logger.debug("selectDataSource: not found slaves use master");
-            return master;
+            return null;
         }
         int rand = RandomUtils.nextInt(0, slaveLabels.size());
         String label = slaveLabels.get(rand);
-        logger.debug("selectDataSource: slave, label={}", label);
+        logger.debug("selectSlaveDataSource: label={}", label);
         DataSource dataSource = slaves.get(label);
         return dataSource;
     }
