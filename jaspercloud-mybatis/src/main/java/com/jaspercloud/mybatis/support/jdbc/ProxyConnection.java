@@ -16,13 +16,19 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
 public class ProxyConnection implements Connection {
 
+    private static ThreadLocal<Boolean> masterTransaction = new InheritableThreadLocal<>();
     private Connection master;
     private Connection slave;
+
+    public static void setMasterTransaction(boolean status) {
+        masterTransaction.set(status);
+    }
 
     public ProxyConnection(Connection master, Connection slave) {
         this.master = master;
@@ -30,6 +36,9 @@ public class ProxyConnection implements Connection {
     }
 
     private Connection selectConnection() {
+        if (Objects.equals(true, masterTransaction.get())) {
+            return master;
+        }
         if (RouteDataSource.isSlave() && null != slave) {
             return slave;
         }
@@ -62,6 +71,7 @@ public class ProxyConnection implements Connection {
         if (null != slave) {
             slave.close();
         }
+        masterTransaction.remove();
     }
 
     @Override

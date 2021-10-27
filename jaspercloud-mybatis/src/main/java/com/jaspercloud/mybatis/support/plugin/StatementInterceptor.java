@@ -1,6 +1,7 @@
 package com.jaspercloud.mybatis.support.plugin;
 
 import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
+import com.jaspercloud.mybatis.support.jdbc.ProxyConnection;
 import com.jaspercloud.mybatis.support.jdbc.RouteDataSource;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -37,8 +38,10 @@ public class StatementInterceptor implements Interceptor {
             boolean selectKey = mappedStatement.getId().endsWith("insert!selectKey");
             if (selectKey) {
                 RouteDataSource.master();
+                ProxyConnection.setMasterTransaction(true);
             } else if (!SqlCommandType.SELECT.equals(mappedStatement.getSqlCommandType())) {
                 RouteDataSource.master();
+                ProxyConnection.setMasterTransaction(true);
             } else {
                 RouteDataSource.slave();
             }
