@@ -41,8 +41,12 @@ public class StatementInterceptor implements Interceptor {
             ProxyConnection connection = (ProxyConnection) getConnection((Connection) invocation.getArgs()[0]);
             boolean masterTransaction = connection.isMasterTransaction();
             boolean selectKey = mappedStatement.getId().endsWith("insert!selectKey");
+            boolean nextval = statementHandler.getBoundSql().getSql().toLowerCase().contains("nextval");
             if (true == masterTransaction) {
                 RouteDataSource.master();
+            } else if (nextval) {
+                RouteDataSource.master();
+                connection.setMasterTransaction();
             } else if (selectKey) {
                 RouteDataSource.master();
                 connection.setMasterTransaction();
