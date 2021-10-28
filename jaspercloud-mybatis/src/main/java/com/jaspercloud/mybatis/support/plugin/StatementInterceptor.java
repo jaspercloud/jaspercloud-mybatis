@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
 import com.jaspercloud.mybatis.support.jdbc.ProxyConnection;
 import com.jaspercloud.mybatis.support.jdbc.RouteDataSource;
 import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.logging.jdbc.ConnectionLogger;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.Interceptor;
@@ -14,6 +15,8 @@ import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 
 @Intercepts({
@@ -35,13 +38,17 @@ public class StatementInterceptor implements Interceptor {
             StatementHandler statementHandler = PluginUtils.realTarget(invocation.getTarget());
             MetaObject metaObject = SystemMetaObject.forObject(statementHandler);
             MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
+            ProxyConnection connection = (ProxyConnection) getConnection((Connection) invocation.getArgs()[0]);
+            boolean masterTransaction = connection.isMasterTransaction();
             boolean selectKey = mappedStatement.getId().endsWith("insert!selectKey");
-            if (selectKey) {
+            if (true == masterTransaction) {
                 RouteDataSource.master();
-                ProxyConnection.setMasterTransaction(true);
+            } else if (selectKey) {
+                RouteDataSource.master();
+                connection.setMasterTransaction();
             } else if (!SqlCommandType.SELECT.equals(mappedStatement.getSqlCommandType())) {
                 RouteDataSource.master();
-                ProxyConnection.setMasterTransaction(true);
+                connection.setMasterTransaction();
             } else {
                 RouteDataSource.slave();
             }
@@ -49,5 +56,17 @@ public class StatementInterceptor implements Interceptor {
         } finally {
             RouteDataSource.remove();
         }
+    }
+
+
+    private Connection getConnection(Connection proxy) throws Exception {
+        if (!Proxy.isProxyClass(proxy.getClass())) {
+            return proxy;
+        }
+        Field h = proxy.getClass().getSuperclass().getDeclaredField("h");
+        h.setAccessible(true);
+        ConnectionLogger connectionLogger = (ConnectionLogger) h.get(proxy);
+        Connection connection = connectionLogger.getConnection();
+        return connection;
     }
 }

@@ -6,16 +6,19 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Objects;
 
 public class ProxyConnection extends AbstractUnsupportedOperationConnection {
 
-    private static ThreadLocal<Boolean> masterTransaction = new InheritableThreadLocal<>();
+    private boolean masterTransaction = false;
     private Connection master;
     private Connection slave;
 
-    public static void setMasterTransaction(boolean status) {
-        masterTransaction.set(status);
+    public Boolean isMasterTransaction() {
+        return masterTransaction;
+    }
+
+    public void setMasterTransaction() {
+        this.masterTransaction = true;
     }
 
     public ProxyConnection(Connection master, Connection slave) {
@@ -24,7 +27,7 @@ public class ProxyConnection extends AbstractUnsupportedOperationConnection {
     }
 
     private Connection selectConnection() {
-        if (Objects.equals(true, masterTransaction.get())) {
+        if (true == masterTransaction) {
             return master;
         }
         if (RouteDataSource.isSlave() && null != slave) {
@@ -59,7 +62,6 @@ public class ProxyConnection extends AbstractUnsupportedOperationConnection {
         if (null != slave) {
             slave.close();
         }
-        masterTransaction.remove();
     }
 
     @Override
