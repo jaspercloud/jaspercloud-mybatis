@@ -182,6 +182,16 @@ public class ProxyStatement<T extends Statement> extends ProxyWrapper implements
     }
 
     @Override
+    public Connection getConnection() throws SQLException {
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    public boolean getMoreResults(int current) throws SQLException {
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
     public void setFetchSize(int rows) throws SQLException {
         this.fetchSize = rows;
         for (ExecuteStatement statement : getStatementList()) {
@@ -239,16 +249,6 @@ public class ProxyStatement<T extends Statement> extends ProxyWrapper implements
             rets[i] = list.get(i);
         }
         return rets;
-    }
-
-    @Override
-    public Connection getConnection() throws SQLException {
-        throw new SQLFeatureNotSupportedException();
-    }
-
-    @Override
-    public boolean getMoreResults(int current) throws SQLException {
-        throw new SQLFeatureNotSupportedException();
     }
 
     @Override
