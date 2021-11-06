@@ -66,6 +66,10 @@ public class ProxyStatement<T extends Statement> extends ProxyWrapper implements
 
     @Override
     public void close() throws SQLException {
+        for (ExecuteStatement statement : statementList) {
+            statement.getStatement().close();
+        }
+        statementList.clear();
         closed = true;
     }
 
