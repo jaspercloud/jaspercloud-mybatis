@@ -47,6 +47,11 @@ public class ProxyPreparedStatement extends ProxyStatement<PreparedStatement> im
     }
 
     @Override
+    public long executeLargeUpdate() throws SQLException {
+        return getTargetPreparedStatement().executeLargeUpdate();
+    }
+
+    @Override
     public void addBatch() throws SQLException {
         getTargetPreparedStatement().addBatch();
     }
@@ -61,11 +66,6 @@ public class ProxyPreparedStatement extends ProxyStatement<PreparedStatement> im
         throw new SQLFeatureNotSupportedException();
     }
 
-    @Override
-    public long executeLargeUpdate() throws SQLException {
-        throw new SQLFeatureNotSupportedException();
-    }
-
     /**
      * use set params
      *
@@ -77,6 +77,11 @@ public class ProxyPreparedStatement extends ProxyStatement<PreparedStatement> im
             throw new SQLFeatureNotSupportedException("not support multi sql PreparedStatement");
         }
         return getStatementList().iterator().next().getStatement();
+    }
+
+    @Override
+    public void clearParameters() throws SQLException {
+        getTargetPreparedStatement().clearParameters();
     }
 
     @Override
@@ -162,11 +167,6 @@ public class ProxyPreparedStatement extends ProxyStatement<PreparedStatement> im
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
         getTargetPreparedStatement().setBinaryStream(parameterIndex, x, length);
-    }
-
-    @Override
-    public void clearParameters() throws SQLException {
-        getTargetPreparedStatement().clearParameters();
     }
 
     @Override
