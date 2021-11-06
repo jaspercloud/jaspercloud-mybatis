@@ -15,133 +15,133 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-public abstract class AbstractUnsupportedOperationConnection implements Connection {
+public abstract class AbstractConnection extends ProxyWrapper implements Connection {
 
     @Override
-    public final SQLWarning getWarnings() throws SQLException {
+    public SQLWarning getWarnings() throws SQLException {
         throw new SQLFeatureNotSupportedException("getWarnings");
     }
 
     @Override
-    public final void clearWarnings() throws SQLException {
+    public void clearWarnings() throws SQLException {
         throw new SQLFeatureNotSupportedException("clearWarnings");
     }
 
     @Override
-    public final Savepoint setSavepoint() throws SQLException {
+    public Savepoint setSavepoint() throws SQLException {
         throw new SQLFeatureNotSupportedException("setSavepoint");
     }
 
     @Override
-    public final Savepoint setSavepoint(final String name) throws SQLException {
+    public Savepoint setSavepoint(String name) throws SQLException {
         throw new SQLFeatureNotSupportedException("setSavepoint name");
     }
 
     @Override
-    public final void releaseSavepoint(final Savepoint savepoint) throws SQLException {
+    public void releaseSavepoint(Savepoint savepoint) throws SQLException {
         throw new SQLFeatureNotSupportedException("releaseSavepoint");
     }
 
     @Override
-    public final void rollback(final Savepoint savepoint) throws SQLException {
+    public void rollback(Savepoint savepoint) throws SQLException {
         throw new SQLFeatureNotSupportedException("rollback savepoint");
     }
 
     @Override
-    public final void abort(final Executor executor) throws SQLException {
+    public void abort(Executor executor) throws SQLException {
         throw new SQLFeatureNotSupportedException("abort");
     }
 
     @Override
-    public final String getCatalog() {
+    public String getCatalog() {
         return null;
     }
 
     @Override
-    public final void setCatalog(final String catalog) {
+    public void setCatalog(String catalog) {
     }
 
     @Override
-    public final String getSchema() {
+    public String getSchema() {
         return null;
     }
 
     @Override
-    public final void setSchema(final String schema) {
+    public void setSchema(String schema) {
     }
 
     @Override
-    public final Map<String, Class<?>> getTypeMap() throws SQLException {
+    public Map<String, Class<?>> getTypeMap() throws SQLException {
         throw new SQLFeatureNotSupportedException("getTypeMap");
     }
 
     @Override
-    public final void setTypeMap(final Map<String, Class<?>> map) throws SQLException {
+    public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
         throw new SQLFeatureNotSupportedException("setTypeMap");
     }
 
     @Override
-    public final int getNetworkTimeout() throws SQLException {
+    public int getNetworkTimeout() throws SQLException {
         throw new SQLFeatureNotSupportedException("getNetworkTimeout");
     }
 
     @Override
-    public final void setNetworkTimeout(final Executor executor, final int milliseconds) throws SQLException {
+    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         throw new SQLFeatureNotSupportedException("setNetworkTimeout");
     }
 
     @Override
-    public final Clob createClob() throws SQLException {
+    public Clob createClob() throws SQLException {
         throw new SQLFeatureNotSupportedException("createClob");
     }
 
     @Override
-    public final Blob createBlob() throws SQLException {
+    public Blob createBlob() throws SQLException {
         throw new SQLFeatureNotSupportedException("createBlob");
     }
 
     @Override
-    public final NClob createNClob() throws SQLException {
+    public NClob createNClob() throws SQLException {
         throw new SQLFeatureNotSupportedException("createNClob");
     }
 
     @Override
-    public final SQLXML createSQLXML() throws SQLException {
+    public SQLXML createSQLXML() throws SQLException {
         throw new SQLFeatureNotSupportedException("createSQLXML");
     }
 
     @Override
-    public final Array createArrayOf(final String typeName, final Object[] elements) throws SQLException {
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         throw new SQLFeatureNotSupportedException("createArrayOf");
     }
 
     @Override
-    public final Struct createStruct(final String typeName, final Object[] attributes) throws SQLException {
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
         throw new SQLFeatureNotSupportedException("createStruct");
     }
 
     @Override
-    public final boolean isValid(final int timeout) throws SQLException {
+    public boolean isValid(int timeout) throws SQLException {
         throw new SQLFeatureNotSupportedException("isValid");
     }
 
     @Override
-    public final Properties getClientInfo() throws SQLException {
+    public Properties getClientInfo() throws SQLException {
         throw new SQLFeatureNotSupportedException("getClientInfo");
     }
 
     @Override
-    public final String getClientInfo(final String name) throws SQLException {
+    public String getClientInfo(String name) throws SQLException {
         throw new SQLFeatureNotSupportedException("getClientInfo name");
     }
 
     @Override
-    public final void setClientInfo(final String name, final String value) {
+    public void setClientInfo(String name, String value) {
         throw new UnsupportedOperationException("setClientInfo name value");
     }
 
     @Override
-    public final void setClientInfo(final Properties properties) {
+    public void setClientInfo(Properties properties) {
         throw new UnsupportedOperationException("setClientInfo properties");
     }
 }

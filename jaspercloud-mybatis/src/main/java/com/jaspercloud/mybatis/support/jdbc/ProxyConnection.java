@@ -1,181 +1,185 @@
 package com.jaspercloud.mybatis.support.jdbc;
 
+import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.ast.SQLStatement;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ProxyConnection extends AbstractUnsupportedOperationConnection {
+public class ProxyConnection extends AbstractConnection {
 
-    private boolean masterTransaction = false;
-    private Connection master;
-    private Connection slave;
+    private ConnectionHolder connectionHolder;
 
-    public Boolean isMasterTransaction() {
-        return masterTransaction;
-    }
-
-    public void setMasterTransaction() {
-        this.masterTransaction = true;
-    }
-
-    public ProxyConnection(Connection master, Connection slave) {
-        this.master = master;
-        this.slave = slave;
-    }
-
-    private Connection selectConnection() {
-        if (true == masterTransaction) {
-            return master;
-        }
-        if (RouteDataSource.isSlave() && null != slave) {
-            return slave;
-        }
-        return master;
+    public ProxyConnection(ConnectionHolder connectionHolder) {
+        this.connectionHolder = connectionHolder;
     }
 
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-        master.setAutoCommit(autoCommit);
+        connectionHolder.setAutoCommit(autoCommit);
     }
 
     @Override
     public boolean getAutoCommit() throws SQLException {
-        return master.getAutoCommit();
+        return connectionHolder.isAutoCommit();
     }
 
     @Override
     public void commit() throws SQLException {
-        master.commit();
+        connectionHolder.commit();
     }
 
     @Override
     public void rollback() throws SQLException {
-        master.rollback();
+        connectionHolder.rollback();
     }
 
     @Override
     public void close() throws SQLException {
-        master.close();
-        if (null != slave) {
-            slave.close();
-        }
+        connectionHolder.close();
     }
 
     @Override
     public boolean isClosed() throws SQLException {
-        return master.isClosed();
+        return connectionHolder.isClosed();
     }
 
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
-        master.setReadOnly(readOnly);
+        connectionHolder.setReadOnly(readOnly);
     }
 
     @Override
     public boolean isReadOnly() throws SQLException {
-        return master.isReadOnly();
+        return connectionHolder.isReadOnly();
     }
 
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
-        master.setTransactionIsolation(level);
+        connectionHolder.setTransactionIsolation(level);
     }
 
     @Override
     public int getTransactionIsolation() throws SQLException {
-        return master.getTransactionIsolation();
-    }
-
-    @Override
-    public Statement createStatement() throws SQLException {
-        return selectConnection().createStatement();
-    }
-
-    @Override
-    public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return selectConnection().prepareStatement(sql);
-    }
-
-    @Override
-    public CallableStatement prepareCall(String sql) throws SQLException {
-        return selectConnection().prepareCall(sql);
+        return connectionHolder.getTransactionIsolation();
     }
 
     @Override
     public String nativeSQL(String sql) throws SQLException {
-        return selectConnection().nativeSQL(sql);
+        StringBuilder builder = new StringBuilder();
+        List<SQLStatement> sqlStatements = SQLUtils.parseStatements(sql, connectionHolder.getDbType());
+        if (sqlStatements.size() > 1) {
+            for (SQLStatement sqlStatement : sqlStatements) {
+                Connection connection = connectionHolder.getConnection(sqlStatement);
+                builder.append(connection.nativeSQL(sqlStatement.toString()));
+                builder.append(System.lineSeparator());
+            }
+        }
+        SQLStatement sqlStatement = sqlStatements.get(0);
+        Connection connection = connectionHolder.getConnection(sqlStatement);
+        builder.append(connection.nativeSQL(sqlStatement.toString()));
+        builder.append(System.lineSeparator());
+        return builder.toString();
+    }
+
+    @Override
+    public Statement createStatement() throws SQLException {
+        return new ProxyStatement(connectionHolder);
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-        return selectConnection().createStatement(resultSetType, resultSetConcurrency);
-    }
-
-    @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return selectConnection().prepareStatement(sql, resultSetType, resultSetConcurrency);
-    }
-
-    @Override
-    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return selectConnection().prepareCall(sql, resultSetType, resultSetConcurrency);
+        return new ProxyStatement(connectionHolder);
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return selectConnection().createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+        return new ProxyStatement(connectionHolder);
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return selectConnection().prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+    public CallableStatement prepareCall(String sql) throws SQLException {
+        throw new SQLFeatureNotSupportedException("prepareCall");
+    }
+
+    @Override
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+        throw new SQLFeatureNotSupportedException("prepareCall");
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return selectConnection().prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+        throw new SQLFeatureNotSupportedException("prepareCall");
+    }
+
+    private ProxyPreparedStatement parsePreparedStatement(String sql, SQLFunction<Connection, PreparedStatement> action) throws SQLException {
+        List<ExecuteStatement<PreparedStatement>> statementList = new ArrayList<>();
+        List<SQLStatement> sqlStatements = SQLUtils.parseStatements(sql, connectionHolder.getDbType());
+        if (sqlStatements.size() > 1) {
+            for (SQLStatement sqlStatement : sqlStatements) {
+                Connection connection = connectionHolder.getConnection(sqlStatement);
+                PreparedStatement statement = action.apply(connection);
+                statementList.add(new ExecuteStatement<>(sqlStatement, statement));
+            }
+            return new ProxyPreparedStatement(null, statementList);
+        }
+        SQLStatement sqlStatement = sqlStatements.get(0);
+        Connection connection = connectionHolder.getConnection(sqlStatement);
+        PreparedStatement statement = action.apply(connection);
+        statementList.add(new ExecuteStatement<>(sqlStatement, statement));
+        return new ProxyPreparedStatement(connectionHolder, statementList);
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        return parsePreparedStatement(sql, e -> e.prepareStatement(sql));
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+        return parsePreparedStatement(sql, e -> e.prepareStatement(sql, resultSetType, resultSetConcurrency));
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        return parsePreparedStatement(sql, e -> e.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
-        return selectConnection().prepareStatement(sql, autoGeneratedKeys);
+        return parsePreparedStatement(sql, e -> e.prepareStatement(sql, autoGeneratedKeys));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
-        return selectConnection().prepareStatement(sql, columnIndexes);
+        return parsePreparedStatement(sql, e -> e.prepareStatement(sql, columnIndexes));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
-        return selectConnection().prepareStatement(sql, columnNames);
+        return parsePreparedStatement(sql, e -> e.prepareStatement(sql, columnNames));
     }
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        return selectConnection().getMetaData();
+        return connectionHolder.getMasterConnection().getMetaData();
     }
 
     @Override
     public void setHoldability(int holdability) throws SQLException {
-        master.setHoldability(holdability);
+
     }
 
     @Override
     public int getHoldability() throws SQLException {
-        return master.getHoldability();
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return master.unwrap(iface);
-    }
-
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return master.isWrapperFor(iface);
+        return ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 }

@@ -1,7 +1,7 @@
 package com.jaspercloud.mybatis.support.jdbc;
 
+import com.alibaba.druid.DbType;
 import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.AbstractDataSource;
@@ -17,10 +17,6 @@ public class RouteDataSource extends AbstractDataSource {
 
     private static Logger logger = LoggerFactory.getLogger(RouteDataSource.class);
 
-    private static final String Master = "master";
-    private static final String Slave = "slave";
-
-    private static ThreadLocal<String> threadLocal = new InheritableThreadLocal<>();
     private DataSource master;
     private List<String> slaveLabels;
     private Map<String, DataSource> slaves;
@@ -31,38 +27,26 @@ public class RouteDataSource extends AbstractDataSource {
         this.slaves = slaves;
     }
 
-    public static void master() {
-        logger.debug("set master");
-        threadLocal.set(Master);
+    public Connection getMasterConnection() throws SQLException {
+        return master.getConnection();
     }
 
-    public static void slave() {
-        logger.debug("set slave");
-        threadLocal.set(Slave);
-    }
-
-    public static boolean isSlave() {
-        String label = threadLocal.get();
-        if (StringUtils.equals(label, Slave)) {
-            return true;
+    public Connection getSlaveConnection() throws SQLException {
+        DataSource slave = selectSlaveDataSource();
+        if (null == slave) {
+            return master.getConnection();
         }
-        return false;
-    }
-
-    public static void remove() {
-        threadLocal.remove();
+        return slave.getConnection();
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        DataSource slave = selectSlaveDataSource();
-        return new ProxyConnection(master.getConnection(), null != slave ? slave.getConnection() : null);
+        return new ProxyConnection(new ConnectionHolder(this, DbType.postgresql));
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        DataSource slave = selectSlaveDataSource();
-        return new ProxyConnection(master.getConnection(username, password), null != slave ? slave.getConnection(username, password) : null);
+        return new ProxyConnection(new ConnectionHolder(this, DbType.postgresql));
     }
 
     private DataSource selectSlaveDataSource() {
