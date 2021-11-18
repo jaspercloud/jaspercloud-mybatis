@@ -341,12 +341,12 @@ public class ProxyStatement<T extends Statement> extends ProxyWrapper implements
 
     @Override
     public void closeOnCompletion() throws SQLException {
-        throw new SQLFeatureNotSupportedException();
+
     }
 
     @Override
     public boolean isCloseOnCompletion() throws SQLException {
-        throw new SQLFeatureNotSupportedException();
+        return closed;
     }
 
     @Override
