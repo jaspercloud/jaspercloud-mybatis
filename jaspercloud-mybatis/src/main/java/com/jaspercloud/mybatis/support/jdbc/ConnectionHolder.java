@@ -1,11 +1,15 @@
 package com.jaspercloud.mybatis.support.jdbc;
 
 import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSubqueryTableSource;
@@ -125,8 +129,14 @@ public class ConnectionHolder {
 
     private void parseTable(SQLTableSource sqlTableSource, Set<String> tables) {
         if (sqlTableSource instanceof SQLExprTableSource) {
-            String tableName = ((SQLExprTableSource) sqlTableSource).getName().getSimpleName();
-            tables.add(tableName);
+            SQLExpr expr = ((SQLExprTableSource) sqlTableSource).getExpr();
+            if (expr instanceof SQLIdentifierExpr) {
+                SQLIdentifierExpr identifierExpr = (SQLIdentifierExpr) expr;
+                String tableName = identifierExpr.getName();
+                tables.add(tableName);
+            } else {
+                parseSQLExpr(expr, tables);
+            }
         } else if (sqlTableSource instanceof SQLJoinTableSource) {
             SQLJoinTableSource joinTableSource = (SQLJoinTableSource) sqlTableSource;
             parseTable(joinTableSource.getLeft(), tables);
@@ -136,6 +146,14 @@ public class ConnectionHolder {
             parseTable(queryBlock.getFrom(), tables);
         } else {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    private void parseSQLExpr(SQLExpr expr, Set<String> tables) {
+        if (expr instanceof SQLQueryExpr) {
+            SQLSelect subQuery = ((SQLQueryExpr) expr).getSubQuery();
+            SQLSelectQueryBlock selectQuery = (SQLSelectQueryBlock) subQuery.getQuery();
+            parseTable(selectQuery.getFrom(), tables);
         }
     }
 
