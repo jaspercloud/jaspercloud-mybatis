@@ -1,23 +1,12 @@
 package com.jaspercloud.mybatis.support.jdbc;
 
 import com.alibaba.druid.DbType;
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
-import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
-import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
-import com.alibaba.druid.sql.ast.statement.SQLSelect;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSubqueryTableSource;
-import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import com.alibaba.druid.sql.dialect.postgresql.ast.stmt.PGInsertStatement;
-import com.alibaba.druid.sql.dialect.postgresql.ast.stmt.PGSelectQueryBlock;
-import com.alibaba.druid.sql.dialect.postgresql.ast.stmt.PGSelectStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +18,6 @@ import java.util.Set;
 public class ConnectionHolder {
 
     private static Logger logger = LoggerFactory.getLogger(ConnectionHolder.class);
-
-    private static final String DefaultName = "default";
 
     private RouteDataSource routeDataSource;
     private DbType dbType;
@@ -108,57 +95,24 @@ public class ConnectionHolder {
             String tableName = ((SQLDeleteStatement) statement).getTableName().getSimpleName();
             return getConnection(tableName, true);
         } else if (statement instanceof SQLSelectStatement) {
-            PGSelectQueryBlock query = (PGSelectQueryBlock) ((PGSelectStatement) statement).getSelect().getQuery();
-            SQLTableSource sqlTableSource = query.getFrom();
-            if (null == sqlTableSource) {
-                return getConnection(DefaultName, true);
+            Set<String> tables = SqlTableUtil.parseSelectStatement((SQLSelectStatement) statement);
+            if (tables.isEmpty()) {
+                return getConnection(SqlTableUtil.DefaultName, true);
             } else {
-                Set<String> tables = new HashSet<>();
-                parseTable(sqlTableSource, tables);
                 for (String table : tables) {
                     if (transactionTable.contains(table)) {
-                        return getConnection(DefaultName, true);
+                        return getConnection(SqlTableUtil.DefaultName, true);
                     }
                 }
-                return getConnection(DefaultName, false);
+                return getConnection(SqlTableUtil.DefaultName, false);
             }
         } else {
-            return getConnection(DefaultName, true);
-        }
-    }
-
-    private void parseTable(SQLTableSource sqlTableSource, Set<String> tables) {
-        if (sqlTableSource instanceof SQLExprTableSource) {
-            SQLExpr expr = ((SQLExprTableSource) sqlTableSource).getExpr();
-            if (expr instanceof SQLIdentifierExpr) {
-                SQLIdentifierExpr identifierExpr = (SQLIdentifierExpr) expr;
-                String tableName = identifierExpr.getName();
-                tables.add(tableName);
-            } else {
-                parseSQLExpr(expr, tables);
-            }
-        } else if (sqlTableSource instanceof SQLJoinTableSource) {
-            SQLJoinTableSource joinTableSource = (SQLJoinTableSource) sqlTableSource;
-            parseTable(joinTableSource.getLeft(), tables);
-            parseTable(joinTableSource.getRight(), tables);
-        } else if (sqlTableSource instanceof SQLSubqueryTableSource) {
-            SQLSelectQueryBlock queryBlock = (SQLSelectQueryBlock) ((SQLSubqueryTableSource) sqlTableSource).getSelect().getQuery();
-            parseTable(queryBlock.getFrom(), tables);
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private void parseSQLExpr(SQLExpr expr, Set<String> tables) {
-        if (expr instanceof SQLQueryExpr) {
-            SQLSelect subQuery = ((SQLQueryExpr) expr).getSubQuery();
-            SQLSelectQueryBlock selectQuery = (SQLSelectQueryBlock) subQuery.getQuery();
-            parseTable(selectQuery.getFrom(), tables);
+            return getConnection(SqlTableUtil.DefaultName, true);
         }
     }
 
     public Connection getMasterConnection() throws SQLException {
-        return getConnection(DefaultName, true);
+        return getConnection(SqlTableUtil.DefaultName, true);
     }
 
     private Connection getConnection(String tableName, boolean master) throws SQLException {
