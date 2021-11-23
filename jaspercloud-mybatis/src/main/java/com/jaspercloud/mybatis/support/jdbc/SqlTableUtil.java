@@ -24,8 +24,6 @@ import java.util.Set;
 
 public final class SqlTableUtil {
 
-    public static final String DefaultName = "default";
-
     private SqlTableUtil() {
 
     }

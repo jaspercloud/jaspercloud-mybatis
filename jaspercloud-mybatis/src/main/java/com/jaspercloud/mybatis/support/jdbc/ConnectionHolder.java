@@ -19,6 +19,8 @@ public class ConnectionHolder {
 
     private static Logger logger = LoggerFactory.getLogger(ConnectionHolder.class);
 
+    public static final String DefaultName = "default";
+    
     private RouteDataSource routeDataSource;
     private DbType dbType;
     private Set<String> transactionTable = new HashSet<>();
@@ -97,22 +99,22 @@ public class ConnectionHolder {
         } else if (statement instanceof SQLSelectStatement) {
             Set<String> tables = SqlTableUtil.parseSelectStatement((SQLSelectStatement) statement);
             if (tables.isEmpty()) {
-                return getConnection(SqlTableUtil.DefaultName, true);
+                return getConnection(DefaultName, true);
             } else {
                 for (String table : tables) {
                     if (transactionTable.contains(table)) {
-                        return getConnection(SqlTableUtil.DefaultName, true);
+                        return getConnection(DefaultName, true);
                     }
                 }
-                return getConnection(SqlTableUtil.DefaultName, false);
+                return getConnection(DefaultName, false);
             }
         } else {
-            return getConnection(SqlTableUtil.DefaultName, true);
+            return getConnection(DefaultName, true);
         }
     }
 
     public Connection getMasterConnection() throws SQLException {
-        return getConnection(SqlTableUtil.DefaultName, true);
+        return getConnection(DefaultName, true);
     }
 
     private Connection getConnection(String tableName, boolean master) throws SQLException {
