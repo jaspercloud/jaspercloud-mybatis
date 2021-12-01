@@ -1,5 +1,6 @@
 package com.jaspercloud.mybatis.support;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.jaspercloud.mybatis.properties.DataSourceProperties;
 import com.jaspercloud.mybatis.properties.DatabaseDdlProperties;
@@ -41,7 +42,7 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
         //source
         DataSourceProperties dataSourceProperties = jasperCloudDaoProperties.getDatasource().get(name);
         Map<String, String> map = dataSourceProperties.toMap();
-        DataSource master = DruidDataSourceFactory.createDataSource(map);
+        DruidDataSource master = (DruidDataSource) DruidDataSourceFactory.createDataSource(map);
         Map<String, DataSource> slaves = new HashMap<>();
         for (Map.Entry<String, DataSourceProperties> entry : dataSourceProperties.getSlaves().entrySet()) {
             DataSource slave = DruidDataSourceFactory.createDataSource(merge(map, entry.getValue().toMap()));

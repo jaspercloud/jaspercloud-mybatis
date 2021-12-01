@@ -76,17 +76,11 @@ public class ProxyConnection extends AbstractConnection {
     public String nativeSQL(String sql) throws SQLException {
         StringBuilder builder = new StringBuilder();
         List<SQLStatement> sqlStatements = SQLUtils.parseStatements(sql, connectionHolder.getDbType());
-        if (sqlStatements.size() > 1) {
-            for (SQLStatement sqlStatement : sqlStatements) {
-                Connection connection = connectionHolder.getConnection(sqlStatement);
-                builder.append(connection.nativeSQL(sqlStatement.toString()));
-                builder.append(System.lineSeparator());
-            }
+        for (SQLStatement sqlStatement : sqlStatements) {
+            Connection connection = connectionHolder.getConnection(sqlStatement);
+            builder.append(connection.nativeSQL(sqlStatement.toString()));
+            builder.append(System.lineSeparator());
         }
-        SQLStatement sqlStatement = sqlStatements.get(0);
-        Connection connection = connectionHolder.getConnection(sqlStatement);
-        builder.append(connection.nativeSQL(sqlStatement.toString()));
-        builder.append(System.lineSeparator());
         return builder.toString();
     }
 

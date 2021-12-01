@@ -20,7 +20,7 @@ public class ConnectionHolder {
     private static Logger logger = LoggerFactory.getLogger(ConnectionHolder.class);
 
     public static final String DefaultName = "default";
-    
+
     private RouteDataSource routeDataSource;
     private DbType dbType;
     private Set<String> transactionTable = new HashSet<>();
@@ -60,7 +60,7 @@ public class ConnectionHolder {
     }
 
     public boolean isAutoCommit() {
-        return null == autoCommit ? true : autoCommit;
+        return autoCommit;
     }
 
     public void setAutoCommit(boolean autoCommit) throws SQLException {
@@ -84,6 +84,7 @@ public class ConnectionHolder {
     public ConnectionHolder(RouteDataSource routeDataSource, DbType dbType) {
         this.routeDataSource = routeDataSource;
         this.dbType = dbType;
+        this.autoCommit = routeDataSource.isDefaultAutoCommit();
     }
 
     public Connection getConnection(SQLStatement statement) throws SQLException {

@@ -1,6 +1,7 @@
 package com.jaspercloud.mybatis.support.jdbc;
 
 import com.alibaba.druid.DbType;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +18,15 @@ public class RouteDataSource extends AbstractDataSource {
 
     private static Logger logger = LoggerFactory.getLogger(RouteDataSource.class);
 
-    private DataSource master;
+    private DruidDataSource master;
     private List<String> slaveLabels;
     private Map<String, DataSource> slaves;
 
-    public RouteDataSource(DataSource master, Map<String, DataSource> slaves) {
+    public boolean isDefaultAutoCommit() {
+        return master.isDefaultAutoCommit();
+    }
+
+    public RouteDataSource(DruidDataSource master, Map<String, DataSource> slaves) {
         this.master = master;
         this.slaveLabels = new ArrayList<>(slaves.keySet());
         this.slaves = slaves;
