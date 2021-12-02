@@ -1,5 +1,6 @@
 package com.jaspercloud.mybatis.support;
 
+import com.alibaba.druid.DbType;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.jaspercloud.mybatis.properties.DataSourceProperties;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.sql.DataSource;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +50,10 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
             DataSource slave = DruidDataSourceFactory.createDataSource(merge(map, entry.getValue().toMap()));
             slaves.put(entry.getKey(), slave);
         }
-        RouteDataSource routeDataSource = new RouteDataSource(master, slaves);
+        String url = map.get("url").replaceAll("^jdbc:", "");
+        String scheme = URI.create(url).getScheme();
+        DbType dbType = DbType.of(scheme);
+        RouteDataSource routeDataSource = new RouteDataSource(dbType, master, slaves);
         dataSource = routeDataSource;
         //ddl
         DatabaseDdlProperties properties = jasperCloudDaoProperties.getDdl().get(name);

@@ -21,12 +21,14 @@ public class RouteDataSource extends AbstractDataSource {
     private DruidDataSource master;
     private List<String> slaveLabels;
     private Map<String, DataSource> slaves;
+    private DbType dbType;
 
     public boolean isDefaultAutoCommit() {
         return master.isDefaultAutoCommit();
     }
 
-    public RouteDataSource(DruidDataSource master, Map<String, DataSource> slaves) {
+    public RouteDataSource(DbType dbType, DruidDataSource master, Map<String, DataSource> slaves) {
+        this.dbType = dbType;
         this.master = master;
         this.slaveLabels = new ArrayList<>(slaves.keySet());
         this.slaves = slaves;
@@ -46,12 +48,12 @@ public class RouteDataSource extends AbstractDataSource {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return new ProxyConnection(new ConnectionHolder(this, DbType.postgresql));
+        return new ProxyConnection(new ConnectionHolder(this, dbType));
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        return new ProxyConnection(new ConnectionHolder(this, DbType.postgresql));
+        return new ProxyConnection(new ConnectionHolder(this, dbType));
     }
 
     private DataSource selectSlaveDataSource() {

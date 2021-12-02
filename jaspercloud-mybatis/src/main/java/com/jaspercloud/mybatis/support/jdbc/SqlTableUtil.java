@@ -16,7 +16,6 @@ import com.alibaba.druid.sql.ast.statement.SQLSubqueryTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQueryTableSource;
-import com.alibaba.druid.sql.dialect.postgresql.ast.stmt.PGSelectQueryBlock;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +37,7 @@ public final class SqlTableUtil {
 
     public static Set<String> parseSelectStatement(SQLSelectStatement statement) {
         Set<String> tables = new HashSet<>();
-        PGSelectQueryBlock query = (PGSelectQueryBlock) statement.getSelect().getQuery();
+        SQLSelectQueryBlock query = (SQLSelectQueryBlock) statement.getSelect().getQuery();
         SQLTableSource sqlTableSource = query.getFrom();
         if (null != sqlTableSource) {
             parseTable(sqlTableSource, tables);
