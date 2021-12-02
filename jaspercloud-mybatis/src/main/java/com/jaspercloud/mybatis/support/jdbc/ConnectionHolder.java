@@ -6,7 +6,6 @@ import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
-import com.alibaba.druid.sql.dialect.postgresql.ast.stmt.PGInsertStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +88,7 @@ public class ConnectionHolder {
 
     public Connection getConnection(SQLStatement statement) throws SQLException {
         if (statement instanceof SQLInsertStatement) {
-            String tableName = ((PGInsertStatement) statement).getTableName().getSimpleName();
+            String tableName = ((SQLInsertStatement) statement).getTableName().getSimpleName();
             return getConnection(tableName, true);
         } else if (statement instanceof SQLUpdateStatement) {
             String tableName = ((SQLUpdateStatement) statement).getTableName().getSimpleName();
