@@ -5,6 +5,7 @@ import com.jaspercloud.mybatis.support.JasperCloudDataSourceFactoryBean;
 import com.jaspercloud.mybatis.support.JasperCloudSqlSessionFactoryBean;
 import com.jaspercloud.mybatis.support.JasperCloudSqlSessionTemplateFactoryBean;
 import com.jaspercloud.mybatis.support.JasperCloudTransactionManagerFactoryBean;
+import com.jaspercloud.mybatis.support.JasperCloudTransactionTemplateFactoryBean;
 import com.jaspercloud.mybatis.util.JasperCloudDaoBeanFactory;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
@@ -58,6 +59,7 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements ApplicationCont
             registerJasperCloudSqlSessionFactoryBean(registry, name, primary);
             registerJasperCloudSqlSessionTemplateFactoryBean(registry, name, primary);
             registerJasperCloudDataSourceTransactionManagerFactoryBean(registry, name, primary);
+            registerJasperCloudTransactionTemplateFactoryBean(registry, name, primary);
             registerMapperScannerConfigurer(registry, name, primary);
         }
         registerJasperCloudDaoBeanFactory(registry);
@@ -88,6 +90,17 @@ public class JasperCloudMybatisBeanDefinitionRegistry implements ApplicationCont
         beanDefinition.setPrimary(primary);
         registry.registerBeanDefinition(beanName, beanDefinition);
         registry.registerAlias(beanName, name);
+    }
+
+    private void registerJasperCloudTransactionTemplateFactoryBean(BeanDefinitionRegistry registry, String name, boolean primary) {
+        String beanName = name + "TransactionTemplate";
+        BeanDefinitionBuilder definitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(JasperCloudTransactionTemplateFactoryBean.class);
+        definitionBuilder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
+        definitionBuilder.addConstructorArgValue(name);
+        definitionBuilder.addPropertyReference("transactionManager", name + "DataSourceTransactionManager");
+        AbstractBeanDefinition beanDefinition = definitionBuilder.getBeanDefinition();
+        beanDefinition.setPrimary(primary);
+        registry.registerBeanDefinition(beanName, beanDefinition);
     }
 
     private void registerJasperCloudSqlSessionFactoryBean(BeanDefinitionRegistry registry, String name, boolean primary) {
