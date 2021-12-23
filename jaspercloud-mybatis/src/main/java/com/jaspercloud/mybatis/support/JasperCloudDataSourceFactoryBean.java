@@ -50,11 +50,17 @@ public class JasperCloudDataSourceFactoryBean implements InitializingBean, Facto
             DataSource slave = DruidDataSourceFactory.createDataSource(merge(map, entry.getValue().toMap()));
             slaves.put(entry.getKey(), slave);
         }
-        String url = map.get("url").replaceAll("^jdbc:", "");
-        String scheme = URI.create(url).getScheme();
-        DbType dbType = DbType.of(scheme);
-        RouteDataSource routeDataSource = new RouteDataSource(dbType, master, slaves);
-        dataSource = routeDataSource;
+        if (!slaves.isEmpty()) {
+            //master slave
+            String url = map.get("url").replaceAll("^jdbc:", "");
+            String scheme = URI.create(url).getScheme();
+            DbType dbType = DbType.of(scheme);
+            RouteDataSource routeDataSource = new RouteDataSource(dbType, master, slaves);
+            dataSource = routeDataSource;
+        } else {
+            //single
+            dataSource = master;
+        }
         //ddl
         DatabaseDdlProperties properties = jasperCloudDaoProperties.getDdl().get(name);
         if (null != properties) {
