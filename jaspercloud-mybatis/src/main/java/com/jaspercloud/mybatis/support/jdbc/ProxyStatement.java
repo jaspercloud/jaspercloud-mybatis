@@ -172,7 +172,16 @@ public class ProxyStatement<T extends Statement> extends ProxyWrapper implements
 
     @Override
     public boolean getMoreResults() throws SQLException {
-        throw new SQLFeatureNotSupportedException();
+        boolean result = false;
+        for (ExecuteStatement statement : getStatementList()) {
+            result = statement.getStatement().getMoreResults();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean getMoreResults(int current) throws SQLException {
+        return false;
     }
 
     @Override
@@ -187,11 +196,6 @@ public class ProxyStatement<T extends Statement> extends ProxyWrapper implements
 
     @Override
     public Connection getConnection() throws SQLException {
-        throw new SQLFeatureNotSupportedException();
-    }
-
-    @Override
-    public boolean getMoreResults(int current) throws SQLException {
         throw new SQLFeatureNotSupportedException();
     }
 
