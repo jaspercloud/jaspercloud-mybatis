@@ -1,6 +1,7 @@
 package com.jaspercloud.mybatis.support.ddl;
 
 import com.jaspercloud.mybatis.properties.DatabaseDdlProperties;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,24 +49,40 @@ public class DdlExecuter {
         migrateList.addAll(scanClassList);
         migrateList.addAll(scanFileList);
         checkTable(jdbcTemplate);
-        int currentVersion = getVersion(properties, jdbcTemplate);
-        List<DdlMigrate> list = migrateList.stream().sorted(new Comparator<DdlMigrate>() {
-            @Override
-            public int compare(DdlMigrate o1, DdlMigrate o2) {
-                return new Integer(o1.getMigrateInfo().getUpdateVersion()).compareTo(new Integer(o2.getMigrateInfo().getUpdateVersion()));
-            }
-        }).filter(new Predicate<DdlMigrate>() {
-            @Override
-            public boolean test(DdlMigrate ddlMigrate) {
-                if (!properties.getName().equals(ddlMigrate.getMigrateInfo().getMigrateName())) {
-                    return false;
+        List<DdlMigrate> list;
+        if (BooleanUtils.isTrue(properties.getAutoMigrate())) {
+            //autoMigrate
+            list = migrateList.stream().sorted(new Comparator<DdlMigrate>() {
+                @Override
+                public int compare(DdlMigrate o1, DdlMigrate o2) {
+                    return new Integer(o1.getMigrateInfo().getUpdateVersion()).compareTo(new Integer(o2.getMigrateInfo().getUpdateVersion()));
                 }
-                if (ddlMigrate.getMigrateInfo().getUpdateVersion() <= currentVersion) {
-                    return false;
+            }).collect(Collectors.toList());
+            list = list.stream().filter(e -> {
+                Integer ver = getVersion(jdbcTemplate, properties, e.getMigrateInfo().getUpdateVersion());
+                return null == ver;
+            }).collect(Collectors.toList());
+        } else {
+            //migrate from maxVersion
+            int maxVersion = getMaxVersion(properties, jdbcTemplate);
+            list = migrateList.stream().sorted(new Comparator<DdlMigrate>() {
+                @Override
+                public int compare(DdlMigrate o1, DdlMigrate o2) {
+                    return new Integer(o1.getMigrateInfo().getUpdateVersion()).compareTo(new Integer(o2.getMigrateInfo().getUpdateVersion()));
                 }
-                return true;
-            }
-        }).collect(Collectors.toList());
+            }).filter(new Predicate<DdlMigrate>() {
+                @Override
+                public boolean test(DdlMigrate ddlMigrate) {
+                    if (!properties.getName().equals(ddlMigrate.getMigrateInfo().getMigrateName())) {
+                        return false;
+                    }
+                    if (ddlMigrate.getMigrateInfo().getUpdateVersion() <= maxVersion) {
+                        return false;
+                    }
+                    return true;
+                }
+            }).collect(Collectors.toList());
+        }
         list.forEach(new Consumer<DdlMigrate>() {
             @Override
             public void accept(DdlMigrate ddlMigrate) {
@@ -85,13 +102,24 @@ public class DdlExecuter {
         String createTableSql = "create table if not exists ddl_history (" +
                 "name varchar(128)," +
                 "version int4," +
-                "create_time timestamp," +
+                "create_time timestamp not null default now()," +
                 "unique (name, version)" +
                 ")";
         jdbcTemplate.update(createTableSql);
     }
 
-    private int getVersion(DatabaseDdlProperties properties, JdbcTemplate jdbcTemplate) {
+    private Integer getVersion(JdbcTemplate jdbcTemplate, DatabaseDdlProperties properties, int version) {
+        try {
+            String sql = "select version from ddl_history where name=? and version=?";
+            Object[] args = {properties.getName(), version};
+            Integer ver = jdbcTemplate.queryForObject(sql, args, Integer.class);
+            return ver;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    private Integer getMaxVersion(DatabaseDdlProperties properties, JdbcTemplate jdbcTemplate) {
         Integer version;
         try {
             String maxVersionSql = "select max(version) from ddl_history where name=?";

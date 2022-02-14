@@ -5,6 +5,7 @@ public class DatabaseDdlProperties {
     private String name = "ddl";
     private String[] location;
     private String[] classLocation;
+    private Boolean autoMigrate;
 
     public String getName() {
         return name;
@@ -28,6 +29,14 @@ public class DatabaseDdlProperties {
 
     public void setClassLocation(String[] classLocation) {
         this.classLocation = classLocation;
+    }
+
+    public Boolean getAutoMigrate() {
+        return autoMigrate;
+    }
+
+    public void setAutoMigrate(Boolean autoMigrate) {
+        this.autoMigrate = autoMigrate;
     }
 
     public DatabaseDdlProperties() {
