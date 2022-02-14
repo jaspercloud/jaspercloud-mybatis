@@ -18,7 +18,7 @@
 
     <modules>
         <module>jaspercloud-mybatis</module>
-        <module>demo</module>
+        <!--<module>demo</module>-->
     </modules>
 
     <licenses>
